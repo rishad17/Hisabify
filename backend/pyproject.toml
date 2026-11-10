@@ -1,0 +1,46 @@
+[project]
+name = "takawise-backend"
+version = "0.1.0"
+description = "TakaWise AI — FastAPI backend"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    # Database layer (used from Phase 1)
+    "sqlalchemy>=2.0.36",
+    "alembic>=1.14",
+    "psycopg[binary]>=3.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "httpx>=0.28",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/F: pycodestyle + pyflakes, I: import order, B: bugbear, UP: modern syntax,
+# DTZ: forbid naive datetimes (timezone bugs are a real risk in this app)
+select = ["E", "F", "I", "B", "UP", "DTZ"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's Depends()/Query() in defaults is idiomatic
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Header"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
