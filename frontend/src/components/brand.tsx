@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { cn } from '@/lib/utils'
 
-/** The TakaWise mark: a ৳ in a rounded emerald tile with a small gold "coin" spark. */
+/** The Hisabify mark: a ৳ in a rounded emerald tile with a small gold "coin" spark. */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <span
@@ -24,7 +24,7 @@ export function Logo({ className, compact = false }: { className?: string; compa
       <LogoMark />
       {!compact && (
         <span className="text-[17px] font-semibold tracking-tight">
-          TakaWise <span className="text-primary">AI</span>
+          Hisab<span className="text-primary">ify</span>
         </span>
       )}
     </span>

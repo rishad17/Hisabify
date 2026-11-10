@@ -43,7 +43,7 @@ export function AppShell() {
     <div className="min-h-svh bg-background text-foreground">
       {/* ---------- Desktop sidebar ---------- */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r bg-sidebar lg:flex">
-        <Link to="/" className="flex h-16 items-center px-5" aria-label="TakaWise AI home">
+        <Link to="/" className="flex h-16 items-center px-5" aria-label="Hisabify home">
           <Logo />
         </Link>
         <nav aria-label="Main" className="flex-1 space-y-1 px-3 py-2">
@@ -93,7 +93,7 @@ export function AppShell() {
       {/* ---------- Phone / tablet top bar ---------- */}
       <header className="sticky top-0 z-20 border-b bg-background/85 backdrop-blur lg:hidden">
         <div className="flex h-14 items-center justify-between gap-2 px-4">
-          <Link to="/" aria-label="TakaWise AI home">
+          <Link to="/" aria-label="Hisabify home">
             <Logo />
           </Link>
           <div className="flex items-center gap-1">

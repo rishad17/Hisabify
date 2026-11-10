@@ -36,7 +36,7 @@ export function DataPrivacyCard() {
   async function exportCsv() {
     setDownloading(true)
     try {
-      await apiDownload('/api/v1/me/export.csv', 'takawise-transactions.csv')
+      await apiDownload('/api/v1/me/export.csv', 'hisabify-transactions.csv')
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : 'Export failed.')
     } finally {

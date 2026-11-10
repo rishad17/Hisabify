@@ -6,7 +6,9 @@ import { describe, expect, it } from 'vitest'
 // The CSP in vercel.json allows the inline theme script in index.html by its hash.
 // If someone edits that script, this test fails instead of production silently breaking.
 describe('Content-Security-Policy', () => {
-  const html = readFileSync('index.html', 'utf8')
+  // Git stores LF (.gitattributes) and Vercel builds from git, so hash the LF version even
+  // if a Windows editor converted the working copy to CRLF.
+  const html = readFileSync('index.html', 'utf8').replaceAll('\r\n', '\n')
   const vercel = JSON.parse(readFileSync('vercel.json', 'utf8'))
   const csp: string = vercel.headers
     .flatMap((h: { headers: { key: string; value: string }[] }) => h.headers)

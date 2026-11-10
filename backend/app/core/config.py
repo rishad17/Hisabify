@@ -14,13 +14,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    app_name: str = "TakaWise AI"
+    app_name: str = "Hisabify"
     app_version: str = "0.1.0"
     environment: Literal["development", "test", "production"] = "development"
     log_level: str = "INFO"
 
     # Comma-separated list of allowed browser origins, e.g.
-    # "http://localhost:5173,https://takawise.vercel.app"
+    # "http://localhost:5173,https://hisabify.vercel.app"
     cors_origins: str = Field(default="http://localhost:5173")
 
     # Business timezone: "ajke"/"today" is always resolved in Dhaka time, never UTC.

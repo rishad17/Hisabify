@@ -32,7 +32,7 @@ export function AuthLayout({
 
         <div className="relative flex items-center gap-2.5">
           <LogoMark className="ring-white/20" />
-          <span className="text-lg font-semibold tracking-tight">TakaWise AI</span>
+          <span className="text-lg font-semibold tracking-tight">Hisab<span className="text-hero-muted">ify</span></span>
         </div>
 
         <div className="relative my-auto max-w-md space-y-8">
