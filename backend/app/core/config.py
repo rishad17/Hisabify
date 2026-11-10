@@ -36,8 +36,14 @@ class Settings(BaseSettings):
     # New projects use asymmetric signing keys published via JWKS — leave this empty.
     supabase_jwt_secret: str | None = None
 
-    # --- AI (later phases) ---
-    gemini_api_key: str | None = None  # Phase 4
+    # --- AI ---
+    gemini_api_key: str | None = None
+    # Primary model + fallback used when the primary is overloaded (HTTP 429/503) or slow.
+    gemini_model: str = "gemini-3.5-flash-lite"
+    gemini_fallback_model: str | None = "gemini-3.1-flash-lite"
+    gemini_timeout_seconds: float = 20.0
+    # Per-user limit on AI requests (protects the free quota from loops/abuse).
+    ai_requests_per_minute: int = 10
     groq_api_key: str | None = None  # Phase 5
 
     @field_validator("database_url")
