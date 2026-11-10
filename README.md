@@ -70,7 +70,7 @@ Other scripts: `npm run build`, `npm run lint`, `npm run typecheck`.
 | backend | `DATABASE_URL`, `SUPABASE_URL` | Phase 1 | **yes** (DB URL) |
 | backend | `GEMINI_API_KEY`, `GROQ_API_KEY` | Phases 4–5 | **yes** |
 | frontend | `VITE_API_URL` | Backend base URL | no (public) |
-| frontend | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Phase 1 | no (public by design) |
+| frontend | `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` | Phase 1 | no (public by design) |
 
 Anything prefixed `VITE_` is bundled into public JavaScript. **AI keys and database credentials live only in the backend.**
 
