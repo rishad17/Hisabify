@@ -2,7 +2,7 @@
 
 Smart expense tracker and AI budget planner for Bangladeshi users. Record expenses by text or voice in **English, Bangla (বাংলা) or Banglish**, track multiple wallets (Cash, bKash, Nagad, bank), plan monthly budgets, simulate purchases, and ask questions about your own finances.
 
-> 🚧 Work in progress. Currently at **Phase 0: project setup**.
+> 🚧 Work in progress. Phases 0–3 done: sign-in, wallets, and manual expense/income/transfer tracking.
 
 ## Core principle
 
@@ -70,7 +70,7 @@ Other scripts: `npm run build`, `npm run lint`, `npm run typecheck`.
 | backend | `DATABASE_URL`, `SUPABASE_URL` | Phase 1 | **yes** (DB URL) |
 | backend | `GEMINI_API_KEY`, `GROQ_API_KEY` | Phases 4–5 | **yes** |
 | frontend | `VITE_API_URL` | Backend base URL | no (public) |
-| frontend | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Phase 1 | no (public by design) |
+| frontend | `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` | Phase 1 | no (public by design) |
 
 Anything prefixed `VITE_` is bundled into public JavaScript. **AI keys and database credentials live only in the backend.**
 
@@ -83,9 +83,9 @@ Anything prefixed `VITE_` is bundled into public JavaScript. **AI keys and datab
 ## Roadmap
 
 - [x] Phase 0: Project setup
-- [ ] Phase 1: Auth, schema, first deploy
-- [ ] Phase 2: Ledger core (wallets, transactions, transfers)
-- [ ] Phase 3: Manual UI
+- [x] Phase 1: Auth, schema (deploy pending)
+- [x] Phase 2: Ledger core (wallets, transactions, transfers)
+- [x] Phase 3: Manual UI
 - [ ] Phase 4: AI text entry
 - [ ] Phase 5: Voice entry
 - [ ] Phase 6: Budgets and commitments
