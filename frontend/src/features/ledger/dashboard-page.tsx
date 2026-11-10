@@ -1,5 +1,5 @@
 import { AlertCircle, ArrowDownLeft, ArrowUpRight, ChevronRight, Scale, WalletMinimal } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { lazy, Suspense, type ReactNode } from 'react'
 import { Link } from 'react-router'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { QuickEntry } from '@/features/assistant/quick-entry'
-import { CategoryBreakdownChart, DailySpendingChart } from '@/features/insights/charts'
 import { BudgetAlerts } from '@/features/planning/budget-alerts'
 import { SafeToSpendCard } from '@/features/planning/safe-to-spend-card'
 import { useOverview, useRecentTransactions, useWallets } from '@/features/ledger/api'
@@ -17,6 +16,14 @@ import { TransactionList } from '@/features/ledger/transaction-list'
 import { WalletIcon } from '@/features/ledger/wallet-icon'
 import { useMe } from '@/features/me/api'
 import { currentMonth, formatMonth } from '@/lib/dates'
+
+// Charts pull in Recharts (~ the biggest library) — load them after the rest of the page.
+const CategoryBreakdownChart = lazy(async () => ({
+  default: (await import('@/features/insights/charts')).CategoryBreakdownChart,
+}))
+const DailySpendingChart = lazy(async () => ({
+  default: (await import('@/features/insights/charts')).DailySpendingChart,
+}))
 
 export function DashboardPage() {
   const month = currentMonth()
@@ -103,8 +110,10 @@ export function DashboardPage() {
           </Button>
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
-          <CategoryBreakdownChart month={month} />
-          <DailySpendingChart month={month} />
+          <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+            <CategoryBreakdownChart month={month} />
+            <DailySpendingChart month={month} />
+          </Suspense>
         </div>
       </section>
 

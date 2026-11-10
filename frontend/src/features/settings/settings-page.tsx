@@ -1,3 +1,4 @@
+import { DataPrivacyCard } from '@/features/settings/data-privacy-card'
 import { AlertCircle, Languages, RefreshCw, Wallet } from 'lucide-react'
 
 import { CategoryIcon } from '@/components/category-icon'
@@ -109,6 +110,8 @@ export function SettingsPage() {
           )}
         </CardContent>
       </Card>
+
+      <DataPrivacyCard />
     </div>
   )
 }
