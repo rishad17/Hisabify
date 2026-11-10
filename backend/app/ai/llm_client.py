@@ -10,6 +10,7 @@ Reliability:
   * the response must be valid JSON; otherwise LLMError is raised (never half-parsed data)
 """
 
+import base64
 import json
 import logging
 import time
@@ -43,7 +44,13 @@ class LLMResult:
 
 class LLMClient(Protocol):
     def generate_json(
-        self, *, system: str, user: str, schema: dict[str, Any], temperature: float = 0.1
+        self,
+        *,
+        system: str,
+        user: str,
+        schema: dict[str, Any],
+        temperature: float = 0.1,
+        audio: tuple[bytes, str] | None = None,
     ) -> LLMResult: ...
 
 
@@ -64,11 +71,24 @@ class GeminiClient:
         )
 
     def generate_json(
-        self, *, system: str, user: str, schema: dict[str, Any], temperature: float = 0.1
+        self,
+        *,
+        system: str,
+        user: str,
+        schema: dict[str, Any],
+        temperature: float = 0.1,
+        audio: tuple[bytes, str] | None = None,
     ) -> LLMResult:
+        """`audio` = (bytes, mime type) is sent inline with the text, e.g. for transcription."""
+        parts: list[dict[str, Any]] = [{"text": user}]
+        if audio is not None:
+            data, mime = audio
+            parts.append(
+                {"inline_data": {"mime_type": mime, "data": base64.b64encode(data).decode()}}
+            )
         body = {
             "systemInstruction": {"parts": [{"text": system}]},
-            "contents": [{"role": "user", "parts": [{"text": user}]}],
+            "contents": [{"role": "user", "parts": parts}],
             "generationConfig": {
                 "temperature": temperature,
                 "responseMimeType": "application/json",

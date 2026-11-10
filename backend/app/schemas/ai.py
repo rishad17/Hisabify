@@ -64,3 +64,9 @@ class AIMessageOut(BaseModel):
     message: str | None = None
     clarifications: list[str] = []
     draft: DraftOut | None = None
+
+
+class TranscriptOut(BaseModel):
+    text: str
+    language: Literal["bn", "en", "mixed", "unknown"]
+    provider: str

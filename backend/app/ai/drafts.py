@@ -122,6 +122,42 @@ def _match_wallet(name: Any, wallets: list[WalletInfo]) -> WalletInfo | None:
     return by_type[0] if len(by_type) == 1 else None
 
 
+_NUMBER = re.compile(r"\d[\d,]*(?:\.\d+)?")
+
+
+def flag_reused_amounts(items: list[DraftItem], text: str) -> None:
+    """Catch the LLM copying one amount onto an item the user gave no amount for.
+
+    Example: "lunch korlam ar 30 taka rickshaw" → the model may return lunch ৳30 AND
+    rickshaw ৳30. "30" appears once in the text but is used twice → warn on both.
+    Amounts that don't appear as digits at all (number words like "dedh hajar") are
+    skipped — we can't count those reliably.
+    """
+    counts: dict[Decimal, int] = {}
+    for match in _NUMBER.findall(text):
+        try:
+            value = Decimal(match.replace(",", "")).quantize(Decimal("0.01"))
+        except InvalidOperation:
+            continue
+        counts[value] = counts.get(value, 0) + 1
+
+    used: dict[Decimal, list[DraftItem]] = {}
+    for item in items:
+        used.setdefault(item.amount, []).append(item)
+
+    for amount, group in used.items():
+        in_text = counts.get(amount, 0)
+        if 0 < in_text < len(group):
+            for item in group:
+                item.issues.append(
+                    Issue(
+                        "amount_reused",
+                        f"You mentioned ৳{amount.normalize():f} once but it's used for "
+                        f"{len(group)} items — check each amount.",
+                    )
+                )
+
+
 # ------------------------------------------------------------------- main entry
 
 

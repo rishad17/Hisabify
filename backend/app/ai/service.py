@@ -18,7 +18,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.ai.drafts import Draft, DraftItem, Issue, build_draft
+from app.ai.drafts import Draft, DraftItem, Issue, build_draft, flag_reused_amounts
 from app.ai.extraction import CategoryInfo, WalletInfo, extract
 from app.ai.llm_client import LLMClient, LLMError
 from app.ai.normalize import normalize_user_text
@@ -138,6 +138,7 @@ def process_message(
         ) from exc
 
     draft: Draft = build_draft(result.data, categories=categories, wallets=wallets, today=today)
+    flag_reused_amounts(draft.items, clean)
     _flag_possible_duplicates(
         db, user_id, draft.items, profile.timezone if profile else "Asia/Dhaka"
     )

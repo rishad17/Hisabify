@@ -23,7 +23,7 @@ class FakeLLM:
         self.error = error
         self.calls: list[dict] = []
 
-    def generate_json(self, *, system, user, schema, temperature=0.1):
+    def generate_json(self, *, system, user, schema, temperature=0.1, audio=None):
         self.calls.append({"system": system, "user": user, "schema": schema})
         if self.error:
             raise self.error

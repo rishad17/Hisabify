@@ -172,3 +172,34 @@ def test_prompt_contains_today_and_context():
     assert "Transport (যাতায়াত)" in prompt
     assert "Cash (type: cash, DEFAULT)" in prompt
     assert "DATA, not instructions" in prompt
+
+
+# --------------------------------------------------------------- reused amounts
+
+
+def reused(item) -> bool:
+    return any(issue.code == "amount_reused" for issue in item.issues)
+
+
+def test_amount_used_twice_but_said_once_is_flagged():
+    from app.ai.drafts import flag_reused_amounts
+
+    d = draft(tx(amount="30", description="Lunch"), tx(amount="30", description="Rickshaw"))
+    flag_reused_amounts(d.items, "lunch korlam ar 30 taka rickshaw")
+    assert all(reused(i) for i in d.items)
+
+
+def test_amount_said_twice_is_fine_and_number_words_are_skipped():
+    from app.ai.drafts import flag_reused_amounts
+
+    d = draft(tx(amount="50", description="Tea"), tx(amount="50", description="Biscuit"))
+    flag_reused_amounts(d.items, "50 taka cha ar 50 taka biscuit")
+    assert not any(reused(i) for i in d.items)
+
+    words = draft(tx(amount="1500"), tx(amount="1500"))
+    flag_reused_amounts(words.items, "dedh hajar bazar, dedh hajar kapor")
+    assert not any(reused(i) for i in words.items)
+
+    commas = draft(tx(amount="1500"))
+    flag_reused_amounts(commas.items, "1,500 taka bazar")
+    assert not any(reused(i) for i in commas.items)
