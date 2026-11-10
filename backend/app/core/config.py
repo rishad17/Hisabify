@@ -7,7 +7,7 @@ from functools import lru_cache
 from typing import Literal
 
 from fastapi import Request
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,11 +26,35 @@ class Settings(BaseSettings):
     # Business timezone: "ajke"/"today" is always resolved in Dhaka time, never UTC.
     default_timezone: str = "Asia/Dhaka"
 
-    # --- Added in later phases (declared now so .env.example stays the single reference) ---
-    database_url: str | None = None  # Phase 1
-    supabase_url: str | None = None  # Phase 1 (JWT verification)
+    # --- Database (Supabase Postgres) ---
+    database_url: str | None = None
+
+    # --- Auth (Supabase) ---
+    # Used to build the JWKS URL and to check the token's "iss" claim.
+    supabase_url: str | None = None
+    # Only for older projects still signing tokens with the legacy shared secret (HS256).
+    # New projects use asymmetric signing keys published via JWKS — leave this empty.
+    supabase_jwt_secret: str | None = None
+
+    # --- AI (later phases) ---
     gemini_api_key: str | None = None  # Phase 4
     groq_api_key: str | None = None  # Phase 5
+
+    @field_validator("database_url")
+    @classmethod
+    def _use_psycopg_driver(cls, value: str | None) -> str | None:
+        """Supabase shows `postgresql://…`; SQLAlchemy needs to be told to use psycopg 3."""
+        if not value:
+            return None
+        for prefix in ("postgresql://", "postgres://"):
+            if value.startswith(prefix):
+                return "postgresql+psycopg://" + value[len(prefix) :]
+        return value
+
+    @field_validator("supabase_url")
+    @classmethod
+    def _strip_trailing_slash(cls, value: str | None) -> str | None:
+        return value.rstrip("/") if value else None
 
     @property
     def cors_origin_list(self) -> list[str]:

@@ -12,6 +12,8 @@ dependencies = [
     "sqlalchemy>=2.0.36",
     "alembic>=1.14",
     "psycopg[binary]>=3.2",
+    # Verifying Supabase access tokens (JWT, ES256/RS256 via JWKS)
+    "pyjwt[crypto]>=2.10",
 ]
 
 [project.optional-dependencies]

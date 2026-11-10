@@ -1,8 +1,9 @@
-"""Aggregates every /api/v1 router. Each phase adds one `include_router` line here."""
+"""Aggregates every /api/v1 router. Each phase adds `include_router` lines here."""
 
 from fastapi import APIRouter
 
-api_router = APIRouter()
+from app.api.v1 import categories, me
 
-# Phase 1: api_router.include_router(me.router, prefix="/me", tags=["me"])
-# Phase 2: wallets, categories, transactions ...
+api_router = APIRouter()
+api_router.include_router(me.router, prefix="/me", tags=["me"])
+api_router.include_router(categories.router, prefix="/categories", tags=["categories"])
