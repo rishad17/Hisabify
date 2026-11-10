@@ -121,7 +121,7 @@ export function DraftPreview({ draft, onDone }: { draft: Draft; onDone: () => vo
       const n = result.items.length
       toast.success(
         result.replayed
-          ? 'Already saved. Nothing was duplicated.'
+          ? 'Already saved — nothing duplicated.'
           : `Saved ${n} transaction${n === 1 ? '' : 's'}`,
       )
       onDone()
@@ -278,7 +278,7 @@ export function DraftPreview({ draft, onDone }: { draft: Draft; onDone: () => vo
       {draft.planned.length > 0 && (
         <div className="rounded-lg border border-dashed p-3 text-sm">
           <p className="mb-1 flex items-center gap-1.5 font-medium">
-            <CalendarClock className="size-4" aria-hidden /> Not recorded: future plans
+            <CalendarClock className="size-4" aria-hidden /> Not recorded — future plans
           </p>
           <ul className="list-inside list-disc text-muted-foreground">
             {draft.planned.map((p, i) => (

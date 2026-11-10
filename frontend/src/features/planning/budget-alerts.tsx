@@ -11,8 +11,8 @@ export function BudgetAlerts() {
   if (!q.data || q.data.length === 0) return null
 
   return (
-    <Card className="border-amber-500" role="region" aria-label="Budget warnings">
-      <CardContent className="space-y-3">
+    <Card className="border-amber-500/40 py-4" role="region" aria-label="Budget warnings">
+      <CardContent className="space-y-2 px-4">
         <ul className="space-y-1.5">
           {q.data.map((a) => (
             <li key={`${a.category.id}-${a.kind}`} className="flex items-start gap-2 text-sm">

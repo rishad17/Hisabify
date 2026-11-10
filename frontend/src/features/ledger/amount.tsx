@@ -27,23 +27,6 @@ export function TransactionAmount({ tx, className }: { tx: Transaction; classNam
   return <span className={cn('font-medium tabular-nums', tone, className)}>{text}</span>
 }
 
-/**
- * Headline figure in the display face: "৳35,990" large, ".50" small and raised.
- * Proportional digits on purpose (tabular figures look gappy at this size).
- */
-export function BigMoney({ value, className }: { value: string; className?: string }) {
-  const text = formatTaka(value)
-  const dot = text.lastIndexOf('.')
-  const whole = dot === -1 ? text : text.slice(0, dot)
-  const cents = dot === -1 ? '' : text.slice(dot + 1)
-  return (
-    <p className={cn('font-display leading-[0.9] font-extrabold tracking-[-0.045em]', isNegative(value) && 'text-destructive', className)}>
-      {whole}
-      {cents && cents !== '00' && <span className="ml-1 align-top text-[0.3em] font-bold tracking-normal text-muted-foreground">.{cents}</span>}
-    </p>
-  )
-}
-
 /** A plain balance/total; negative values get a warning color. */
 export function Money({ value, className }: { value: string; className?: string }) {
   return (

@@ -320,7 +320,7 @@ function ExpectedCard() {
           <div>
             <CardTitle className="flex items-center gap-2 text-base"><HandCoins className="size-4" aria-hidden /> Expected income</CardTitle>
             <CardDescription>
-              Money you're waiting for, like tuition fees, freelance payments or allowance. Not counted until it arrives.
+              Money you're waiting for — tuition fees, freelance payments, allowance. Not counted until it arrives.
               {expected.data?.length ? ` Waiting: ${formatTaka(total, { trimZeroDecimals: true })}.` : ''}
             </CardDescription>
           </div>

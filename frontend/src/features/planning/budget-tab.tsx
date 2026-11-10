@@ -137,7 +137,7 @@ function NoBudget({ month, onDraft, onManual }: { month: string; onDraft: (d: Bu
           <Sparkles className="size-4 text-primary" aria-hidden /> Plan {formatMonth(month)}
         </CardTitle>
         <CardDescription>
-          Describe your month in English, বাংলা or Banglish. The AI only reads your numbers. The app does the maths, and
+          Describe your month in English, বাংলা or Banglish. The AI only reads your numbers — the app does the maths, and
           you can edit everything before saving.
         </CardDescription>
       </CardHeader>

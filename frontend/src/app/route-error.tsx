@@ -22,7 +22,7 @@ export function RouteError() {
         <p className="max-w-sm text-sm text-muted-foreground">
           {chunkFailed
             ? 'Reload to get the latest version of Hisabify.'
-            : 'Your data is safe. Nothing was saved halfway, so try reloading the page.'}
+            : 'Your data is safe — nothing was saved halfway. Try reloading the page.'}
         </p>
       </div>
       <div className="flex gap-2">

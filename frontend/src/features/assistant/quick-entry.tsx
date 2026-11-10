@@ -1,4 +1,4 @@
-import { Info, Loader2, MessageSquareText, Mic, RotateCcw, Send, Square, X } from 'lucide-react'
+import { Info, Loader2, MessageSquareText, Mic, RotateCcw, Send, Sparkles, Square, X } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -110,12 +110,13 @@ export function QuickEntry() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl font-bold sm:text-[28px]">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Sparkles className="size-4 text-primary" aria-hidden />
           Ask or record
         </CardTitle>
         <CardDescription>
-          Type or say what you spent, or ask about your money. English, বাংলা or Banglish. Nothing is saved
-          until you confirm it.
+          Type or say what you spent — or ask about your money — in English, বাংলা or Banglish. Nothing is
+          saved until you confirm it.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -164,7 +165,7 @@ export function QuickEntry() {
                   if (!e.target.value) setSource('text')
                 }}
                 onKeyDown={onKeyDown}
-                placeholder={thread.length ? 'Ask a follow-up… e.g. “and last month?”' : 'e.g. Ajke 100 taka rickshaw vara, 200 lunch. Or ask: how much did I spend this month?'}
+                placeholder={thread.length ? 'Ask a follow-up… e.g. “and last month?”' : 'e.g. Ajke 100 taka rickshaw vara, 200 lunch — or “How much did I spend this month?”'}
                 maxLength={500}
                 rows={2}
                 aria-label="Describe your transactions"
@@ -210,7 +211,7 @@ export function QuickEntry() {
             )}
             {source === 'voice' && text && !busy && !reply && (
               <p className="text-sm text-muted-foreground">
-                🎙️ Check the transcript, fix any mistakes, then press Send.
+                🎙️ Check the transcript — fix any mistakes — then press Send.
               </p>
             )}
             {!voiceSupported && !text && (
@@ -219,8 +220,7 @@ export function QuickEntry() {
               </p>
             )}
             {!busy && !reply && !text && thread.length === 0 && (
-              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5" aria-label="Examples">
-                <span className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">Try</span>
+              <div className="flex flex-wrap gap-1.5" aria-label="Examples">
                 {EXAMPLES.map((example) => (
                   <button
                     key={example}
@@ -230,7 +230,7 @@ export function QuickEntry() {
                       setSource('text')
                       inputRef.current?.focus()
                     }}
-                    className="text-sm text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-foreground hover:decoration-primary"
+                    className="rounded-full border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                   >
                     {example}
                   </button>
