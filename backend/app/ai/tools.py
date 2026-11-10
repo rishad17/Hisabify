@@ -225,7 +225,15 @@ def get_budget_status(ctx: ToolContext, month: str | None = None, **_: Any) -> d
 
 
 def get_safe_to_spend(ctx: ToolContext, **_: Any) -> dict:
-    return planning.safe_to_spend(ctx.db, ctx.user_id)
+    data = planning.safe_to_spend(ctx.db, ctx.user_id)
+    # Weekly allowance, computed here so the model never multiplies: per-day amount × days
+    # left in this Bangladeshi week (Saturday–Friday), never past the end of the month.
+    today = _today(ctx)
+    days_to_friday = (4 - today.weekday()) % 7 + 1  # includes today
+    week_days = min(days_to_friday, data["days_left"])
+    data["days_left_this_week"] = week_days
+    data["this_week_allowance"] = (data["per_day"] * week_days).quantize(Decimal("0.01"))
+    return data
 
 
 def simulate_purchase(
@@ -375,7 +383,8 @@ TOOLS: dict[str, Tool] = {
         _decl(
             "get_safe_to_spend",
             "How much the user can still spend this month after reserving unpaid bills, the "
-            "savings target and essential budgets; per-day amount; expected income.",
+            "savings target and essential budgets; per-day amount; this_week_allowance for "
+            "'this week' questions; expected income.",
         ),
     ),
     "simulate_purchase": Tool(

@@ -2,7 +2,7 @@
 
 Smart expense tracker and AI budget planner for Bangladeshi users. Record expenses by text or voice in **English, Bangla (বাংলা) or Banglish**, track multiple wallets (Cash, bKash, Nagad, bank), plan monthly budgets, simulate purchases, and ask questions about your own finances.
 
-> 🚧 Work in progress. Phases 0–7 done: sign-in, wallets, manual tracking, AI entry by text or voice (English, বাংলা, Banglish), budgets, bills, safe-to-spend and charts.
+> 🚧 Work in progress. Phases 0–8 done: sign-in, wallets, manual tracking, AI entry by text or voice (English, বাংলা, Banglish), budgets, bills, safe-to-spend, charts, an AI assistant and a purchase simulator.
 
 ## Core principle
 
@@ -90,6 +90,6 @@ Anything prefixed `VITE_` is bundled into public JavaScript. **AI keys and datab
 - [x] Phase 5: Voice entry
 - [x] Phase 6: Budgets and commitments
 - [x] Phase 7: Dashboard analytics
-- [ ] Phase 8: Assistant and purchase simulator
+- [x] Phase 8: Assistant and purchase simulator
 - [ ] Phase 9: Forecast and adaptive budgets
 - [ ] Phase 10: Hardening and launch
