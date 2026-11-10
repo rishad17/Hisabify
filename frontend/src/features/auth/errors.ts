@@ -13,6 +13,8 @@ export function friendlyAuthError(error: AuthError): string {
     case 'weak_password':
       return 'That password is too weak. Use at least 8 characters with a mix of letters and numbers.'
     case 'over_email_send_rate_limit':
+      // Supabase's built-in mailer only sends a few emails per hour.
+      return "We can't send another email to this address right now. Wait about an hour, or sign up with a different email."
     case 'over_request_rate_limit':
       return 'Too many attempts. Please wait a minute and try again.'
     case 'validation_failed':
