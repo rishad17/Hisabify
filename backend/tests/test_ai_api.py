@@ -116,11 +116,13 @@ def test_possible_duplicate_is_flagged(setup):
     assert [i["code"] for i in issues] == ["possible_duplicate"]
 
 
-def test_question_intent_is_unsupported_for_now(setup):
-    api = setup(FakeLLM({"intent": "question", "transactions": []}))
-    body = send(api, "Ei month e koto khoroch holo?").json()
+def test_budget_intent_points_to_plan_page(setup):
+    # Questions are answered by the assistant (see test_assistant.py); budget requests in
+    # the quick box are redirected to the dedicated budget planner.
+    api = setup(FakeLLM({"intent": "budget", "transactions": []}))
+    body = send(api, "Amar jonno ekta budget plan koro").json()
     assert body["kind"] == "unsupported"
-    assert "coming soon" in body["message"]
+    assert "Plan" in body["message"]
 
 
 def test_missing_amount_asks_for_clarification(setup):
