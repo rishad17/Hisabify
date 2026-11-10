@@ -14,12 +14,13 @@ dependencies = [
     "psycopg[binary]>=3.2",
     # Verifying Supabase access tokens (JWT, ES256/RS256 via JWKS)
     "pyjwt[crypto]>=2.10",
+    # HTTP client for the Gemini REST API (and tests)
+    "httpx>=0.28",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3",
-    "httpx>=0.28",
     "ruff>=0.8",
 ]
 
@@ -38,6 +39,10 @@ target-version = "py312"
 # E/F: pycodestyle + pyflakes, I: import order, B: bugbear, UP: modern syntax,
 # DTZ: forbid naive datetimes (timezone bugs are a real risk in this app)
 select = ["E", "F", "I", "B", "UP", "DTZ"]
+
+[tool.ruff.lint.per-file-ignores]
+# Evaluation data reads best as one case per line.
+"tests/ai_eval/cases.py" = ["E501"]
 
 [tool.ruff.lint.flake8-bugbear]
 # FastAPI's Depends()/Query() in defaults is idiomatic

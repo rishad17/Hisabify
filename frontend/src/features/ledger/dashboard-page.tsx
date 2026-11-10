@@ -6,6 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { QuickEntry } from '@/features/assistant/quick-entry'
 import { useOverview, useRecentTransactions, useWallets } from '@/features/ledger/api'
 import { Money } from '@/features/ledger/amount'
 import { AddTransactionButton } from '@/features/ledger/add-transaction-button'
@@ -47,6 +48,8 @@ export function DashboardPage() {
         </div>
         <AddTransactionButton className="hidden sm:inline-flex" />
       </div>
+
+      <QuickEntry />
 
       {/* Overview cards */}
       <section aria-label="This month" className="grid grid-cols-2 gap-3 lg:grid-cols-4">

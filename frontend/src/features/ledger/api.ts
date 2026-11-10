@@ -171,10 +171,18 @@ export function useRecentTransactions(limit = 5) {
 export function useCreateTransactions() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ items, idempotencyKey }: { items: TransactionInput[]; idempotencyKey: string }) =>
+    mutationFn: ({
+      items,
+      idempotencyKey,
+      source = 'manual',
+    }: {
+      items: TransactionInput[]
+      idempotencyKey: string
+      source?: Transaction['source']
+    }) =>
       apiFetch<{ items: Transaction[]; replayed: boolean }>('/api/v1/transactions/batch', {
         method: 'POST',
-        json: { source: 'manual', items },
+        json: { source, items },
         headers: { 'Idempotency-Key': idempotencyKey },
       }),
     onSuccess: () => invalidateMoney(qc),

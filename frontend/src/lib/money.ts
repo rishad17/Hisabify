@@ -44,6 +44,24 @@ export function formatTaka(amount: string, options: FormatOptions = {}): string 
   return body
 }
 
+/**
+ * Exact sum of decimal strings using integer poisha (BigInt) — no floats.
+ * sumAmounts(["100.00", "200.50", "50"]) → "350.50"
+ */
+export function sumAmounts(amounts: string[]): string {
+  let poisha = 0n
+  for (const amount of amounts) {
+    const negative = amount.trim().startsWith('-')
+    const [intPart = '0', decPart = ''] = amount.trim().replace(/^[-+]/, '').split('.')
+    const value = BigInt(intPart || '0') * 100n + BigInt((decPart + '00').slice(0, 2))
+    poisha += negative ? -value : value
+  }
+  const negative = poisha < 0n
+  const abs = negative ? -poisha : poisha
+  const text = `${abs / 100n}.${String(abs % 100n).padStart(2, '0')}`
+  return negative ? `-${text}` : text
+}
+
 export function isNegative(amount: string): boolean {
   return amount.trim().startsWith('-') && !/^-0*(\.0*)?$/.test(amount.trim())
 }

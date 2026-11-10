@@ -10,6 +10,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.ai.llm_client import GeminiClient
+from app.ai.rate_limit import RateLimiter
 from app.api.health import router as health_router
 from app.api.v1.router import api_router
 from app.core.config import Settings, get_settings
@@ -60,6 +62,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if settings.supabase_url
         else None
     )
+
+    # AI: Gemini client (None if no key → AI endpoints answer 503 "not configured").
+    app.state.llm = (
+        GeminiClient(
+            api_key=settings.gemini_api_key,
+            model=settings.gemini_model,
+            fallback_model=settings.gemini_fallback_model,
+            timeout_seconds=settings.gemini_timeout_seconds,
+        )
+        if settings.gemini_api_key
+        else None
+    )
+    app.state.ai_rate_limiter = RateLimiter(settings.ai_requests_per_minute)
 
     register_error_handlers(app)
     app.include_router(health_router)

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatTaka, isNegative, parseAmountInput, toAsciiDigits } from '@/lib/money'
+import { formatTaka, isNegative, parseAmountInput, sumAmounts, toAsciiDigits } from '@/lib/money'
 
 describe('formatTaka', () => {
   it.each([
@@ -44,6 +44,16 @@ describe('parseAmountInput', () => {
 
   it.each(['', '0', '0.00', 'abc', '1.234', '-5', '1e3', '1234567890123'])('rejects %j', (input) => {
     expect(parseAmountInput(input)).toHaveProperty('error')
+  })
+})
+
+describe('sumAmounts', () => {
+  it('adds exactly, without float errors', () => {
+    expect(sumAmounts(['100.00', '200.50', '50'])).toBe('350.50')
+    expect(sumAmounts(['0.10', '0.20'])).toBe('0.30') // floats would give 0.30000000000000004
+    expect(sumAmounts([])).toBe('0.00')
+    expect(sumAmounts(['-60.00', '10.5'])).toBe('-49.50')
+    expect(sumAmounts(['999999999999.99', '0.01'])).toBe('1000000000000.00')
   })
 })
 
