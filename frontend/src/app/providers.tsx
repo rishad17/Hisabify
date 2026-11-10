@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
 
 import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/sonner'
 import { AuthProvider } from '@/features/auth/auth-provider'
 import { ApiError } from '@/lib/api'
 
@@ -25,6 +26,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>{children}</AuthProvider>
+        <Toaster position="top-center" richColors closeButton />
       </QueryClientProvider>
     </ThemeProvider>
   )

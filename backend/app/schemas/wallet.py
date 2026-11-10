@@ -1,4 +1,5 @@
 import uuid
+from decimal import Decimal
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -31,7 +32,7 @@ class WalletCreate(BaseModel):
 
     name: str = Field(min_length=1, max_length=50)
     type: WalletType
-    opening_balance: NonNegativeMoney = Field(default=0)
+    opening_balance: NonNegativeMoney = Field(default=Decimal("0.00"))
     is_default: bool = False
 
     _name = field_validator("name")(_clean_name)

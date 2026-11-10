@@ -8,12 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCategories, useMe, useUpdateMe, type Category, type Language } from '@/features/me/api'
 
-/**
- * Phase 1 home: proves the full auth round-trip (Supabase login → JWT → FastAPI →
- * Postgres) and shows the account that was set up on first login.
- * The real dashboard replaces this in Phase 3.
- */
-export function HomePage() {
+/** Account settings: AI reply language and the category list. */
+export function SettingsPage() {
   const me = useMe()
   const categories = useCategories(me.isSuccess)
   const updateMe = useUpdateMe()
@@ -44,12 +40,8 @@ export function HomePage() {
   return (
     <div className="space-y-6">
       <section className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          {me.data.is_new_user ? 'Welcome' : 'Welcome back'}, {name}
-        </h1>
-        <p className="text-muted-foreground">
-          Your account is ready. Expense tracking arrives in the next phase.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <p className="text-sm text-muted-foreground">Signed in as {me.data.email ?? name}</p>
       </section>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -62,7 +54,7 @@ export function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            Add bKash, Nagad and bank wallets in Phase 2.
+            New transactions use this wallet unless you pick another. Change it on the Wallets page.
           </CardContent>
         </Card>
 

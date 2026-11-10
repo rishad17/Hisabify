@@ -4,7 +4,10 @@ import { AppShell } from '@/app/app-shell'
 import { LoginPage } from '@/features/auth/login-page'
 import { RedirectIfAuthed, RequireAuth } from '@/features/auth/require-auth'
 import { SignupPage } from '@/features/auth/signup-page'
-import { HomePage } from '@/features/home/home-page'
+import { DashboardPage } from '@/features/ledger/dashboard-page'
+import { TransactionsPage } from '@/features/ledger/transactions-page'
+import { WalletsPage } from '@/features/ledger/wallets-page'
+import { SettingsPage } from '@/features/settings/settings-page'
 
 export const router = createBrowserRouter([
   {
@@ -19,7 +22,12 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppShell />,
-        children: [{ path: '/', element: <HomePage /> }],
+        children: [
+          { path: '/', element: <DashboardPage /> },
+          { path: '/transactions', element: <TransactionsPage /> },
+          { path: '/wallets', element: <WalletsPage /> },
+          { path: '/settings', element: <SettingsPage /> },
+        ],
       },
     ],
   },
