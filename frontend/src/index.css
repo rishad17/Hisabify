@@ -1,8 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
-@import "@fontsource-variable/noto-sans-bengali";
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/instrument-sans";
+@import "@fontsource/hind-siliguri/400.css";
+@import "@fontsource/hind-siliguri/600.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -11,8 +13,9 @@
     --color-hero-from: var(--hero-from);
     --color-hero-to: var(--hero-to);
     --color-hero-muted: var(--hero-muted);
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', 'Noto Sans Bengali Variable', sans-serif;
+    --font-heading: 'Bricolage Grotesque Variable', 'Hind Siliguri', sans-serif;
+    --font-display: 'Bricolage Grotesque Variable', 'Hind Siliguri', sans-serif;
+    --font-sans: 'Instrument Sans Variable', 'Hind Siliguri', sans-serif;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -84,7 +87,7 @@
     --chart-3: #1baf7a;
     --chart-4: #eda100;
     --chart-5: #6250d6;
-    --radius: 0.875rem;
+    --radius: 0.3rem;
     --sidebar: #ffffff;
     --sidebar-foreground: #0f1a15;
     --sidebar-primary: #0f7a55;
@@ -148,6 +151,11 @@
   html {
     @apply font-sans;
     }
+  /* Editorial type: headings in the display face, tight and confident. */
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
 }
 /*
  * Chart tokens (data-viz palette, validated for colour-blind separation in both modes:

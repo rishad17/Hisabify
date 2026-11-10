@@ -66,7 +66,7 @@ export function SimulationResult({ sim }: { sim: Simulation }) {
           </ul>
         </div>
       )}
-      <p className="text-xs text-muted-foreground">Simulation only — nothing was recorded.</p>
+      <p className="text-xs text-muted-foreground">Simulation only. Nothing was recorded.</p>
     </div>
   )
 }

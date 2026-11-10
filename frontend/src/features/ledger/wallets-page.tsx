@@ -180,7 +180,7 @@ export function WalletsPage() {
               It will be hidden from your wallet lists. Its past transactions are kept and still count
               in your reports.
               {archiving && archiving.balance !== '0.00' && (
-                <> It still holds {formatTaka(archiving.balance)} — consider transferring that first.</>
+                <> It still holds {formatTaka(archiving.balance)}. Consider transferring that first.</>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -383,7 +383,7 @@ function SetBalanceDialog({ wallet, onClose }: { wallet?: Wallet; onClose: () =>
         <DialogHeader>
           <DialogTitle>Correct {wallet?.name} balance</DialogTitle>
           <DialogDescription>
-            Enter what's actually in this wallet. We'll record the difference as a balance correction — it
+            Enter what's actually in this wallet. We'll record the difference as a balance correction. It
             won't count as income or spending.
           </DialogDescription>
         </DialogHeader>

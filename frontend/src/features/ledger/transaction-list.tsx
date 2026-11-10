@@ -79,14 +79,14 @@ export function TransactionList({ items, groupByDay = true }: { items: Transacti
         {groups.map((group, gi) => (
           <section key={`${group.day}-${gi}`} aria-label={formatDayLabel(group.day)}>
             {groupByDay && (
-              <h3 className="mb-1 px-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+              <h3 className="pt-1 pb-2 text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
                 {formatDayLabel(group.day)}
               </h3>
             )}
-            <ul className="divide-y overflow-hidden rounded-xl border bg-card shadow-xs">
+            <ul className="divide-y border-t-2 border-b border-foreground [&>li]:border-border">
               {group.items.map((tx) => (
-                <li key={tx.id} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground">
+                <li key={tx.id} className="flex items-center gap-3 py-3 transition-colors hover:bg-muted/40">
+                  <div className="flex w-5 shrink-0 justify-center text-muted-foreground">
                     <RowIcon tx={tx} />
                   </div>
                   <div className="min-w-0 flex-1">

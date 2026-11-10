@@ -80,7 +80,7 @@ export function DataPrivacyCard() {
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-          <li>Only you can see your data — every request is checked against your sign-in.</li>
+          <li>Only you can see your data. Every request is checked against your sign-in.</li>
           <li>Voice recordings are turned into text and never stored.</li>
           <li>
             What you type to the AI is sent to Google Gemini to understand it. It isn't saved here unless you turn on

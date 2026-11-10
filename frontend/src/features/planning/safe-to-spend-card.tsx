@@ -1,4 +1,4 @@
-import { ChevronDown, Info, ShieldCheck } from 'lucide-react'
+import { ChevronDown, Info } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 
@@ -26,20 +26,20 @@ export function SafeToSpendCard() {
     s.flexible_budget_left !== null && s.recommended === s.flexible_budget_left && s.recommended !== s.available
 
   return (
-    <Card className="border-primary/30">
+    <Card className="border-primary">
       <CardHeader className="pb-0">
-        <CardDescription className="flex items-center justify-between gap-2">
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck className="size-4 text-primary" aria-hidden /> Safe to spend this month
-          </span>
+        <CardDescription className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-[11px] font-semibold tracking-[0.14em] uppercase">Safe to spend this month</span>
           <Badge variant={s.confidence === 'good' ? 'secondary' : 'outline'}>
-            {s.confidence === 'good' ? 'Commitments reserved' : 'Estimate — limited info'}
+            {s.confidence === 'good' ? 'Commitments reserved' : 'Estimate, limited info'}
           </Badge>
         </CardDescription>
-        <CardTitle className="flex flex-wrap items-baseline gap-x-3 gap-y-1 pt-1">
-          <span className="text-3xl tabular-nums sm:text-4xl">{formatTaka(s.recommended, { trimZeroDecimals: true })}</span>
-          <span className="text-sm font-normal text-muted-foreground">
-            ≈ {formatTaka(s.per_day, { trimZeroDecimals: true })}/day for {s.days_left} day{s.days_left === 1 ? '' : 's'}
+        <CardTitle className="space-y-1 pt-2">
+          <span className="block font-display text-[56px] leading-[0.9] font-extrabold tracking-[-0.045em] text-primary">
+            {formatTaka(s.recommended, { trimZeroDecimals: true })}
+          </span>
+          <span className="block text-sm font-normal text-muted-foreground">
+            About {formatTaka(s.per_day, { trimZeroDecimals: true })} a day for the next {s.days_left} day{s.days_left === 1 ? '' : 's'}
           </span>
         </CardTitle>
       </CardHeader>

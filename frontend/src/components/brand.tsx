@@ -2,52 +2,53 @@ import type { ReactNode } from 'react'
 
 import { cn } from '@/lib/utils'
 
-/** The Hisabify mark: a ৳ in a rounded emerald tile with a small gold "coin" spark. */
-export function LogoMark({ className }: { className?: string }) {
+/**
+ * Wordmark: type-led, editorial. "Hisab" (হিসাব, accounts) in ink, "ify" in green.
+ * No app-icon tile: the brand is the name.
+ */
+export function Logo({ className, size = 'md' }: { className?: string; size?: 'md' | 'lg' }) {
   return (
     <span
-      aria-hidden
       className={cn(
-        'relative inline-flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-hero-from to-hero-to text-[17px] font-bold text-white shadow-sm ring-1 ring-black/5',
+        'font-display font-extrabold tracking-[-0.04em]',
+        size === 'lg' ? 'text-[28px]' : 'text-[22px]',
         className,
       )}
     >
-      ৳
-      <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-gold ring-2 ring-background" />
+      Hisab<span className="text-primary">ify</span>
     </span>
   )
 }
 
-export function Logo({ className, compact = false }: { className?: string; compact?: boolean }) {
-  return (
-    <span className={cn('inline-flex items-center gap-2.5', className)}>
-      <LogoMark />
-      {!compact && (
-        <span className="text-[17px] font-semibold tracking-tight">
-          Hisab<span className="text-primary">ify</span>
-        </span>
-      )}
-    </span>
-  )
-}
-
-/** Consistent page title row: title, optional subtitle, actions on the right. */
+/** Page title in the display face, large and tight, with an optional kicker above. */
 export function PageHeader({
   title,
   description,
   actions,
+  kicker,
 }: {
   title: ReactNode
   description?: ReactNode
   actions?: ReactNode
+  kicker?: ReactNode
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-3">
-      <div className="min-w-0 space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">{title}</h1>
-        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+    <header className="flex flex-wrap items-end justify-between gap-4">
+      <div className="min-w-0 space-y-2">
+        {kicker && <Kicker>{kicker}</Kicker>}
+        <h1 className="text-[34px] leading-[1.05] font-bold sm:text-5xl">{title}</h1>
+        {description && <p className="max-w-xl text-[15px] text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
-    </div>
+    </header>
+  )
+}
+
+/** Small uppercase label used above sections and figures. */
+export function Kicker({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <p className={cn('text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase', className)}>
+      {children}
+    </p>
   )
 }

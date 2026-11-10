@@ -49,7 +49,7 @@ export function AffordCheck() {
         <CardTitle className="flex items-center gap-2 text-base">
           <Calculator className="size-4" aria-hidden /> Can I afford it?
         </CardTitle>
-        <CardDescription>Check a purchase against your bills, savings and budget — without recording anything.</CardDescription>
+        <CardDescription>Check a purchase against your bills, savings and budget, without recording anything.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <form onSubmit={submit} className="flex flex-wrap gap-2" noValidate>

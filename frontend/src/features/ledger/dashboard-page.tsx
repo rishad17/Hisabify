@@ -1,25 +1,24 @@
-import { AlertCircle, ArrowDownLeft, ArrowUpRight, ChevronRight, Scale } from 'lucide-react'
-import { lazy, Suspense, type ReactNode } from 'react'
+import { AlertCircle, ArrowRight } from 'lucide-react'
+import { lazy, Suspense } from 'react'
 import { Link } from 'react-router'
 
-import { PageHeader } from '@/components/brand'
+import { Kicker, PageHeader } from '@/components/brand'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { QuickEntry } from '@/features/assistant/quick-entry'
 import { AddTransactionButton } from '@/features/ledger/add-transaction-button'
-import { Money } from '@/features/ledger/amount'
+import { BigMoney, Money } from '@/features/ledger/amount'
 import { useOverview, useRecentTransactions, useWallets, type Overview, type Wallet } from '@/features/ledger/api'
 import { TransactionList } from '@/features/ledger/transaction-list'
-import { WalletIcon } from '@/features/ledger/wallet-icon'
 import { useMe } from '@/features/me/api'
 import { BudgetAlerts } from '@/features/planning/budget-alerts'
 import { SafeToSpendCard } from '@/features/planning/safe-to-spend-card'
 import { APP_TIMEZONE, currentMonth, formatMonth } from '@/lib/dates'
 import { formatTaka, isNegative } from '@/lib/money'
+import { cn } from '@/lib/utils'
 
-// Charts pull in Recharts (the biggest library) — load them after the rest of the page.
+// Charts pull in Recharts (the biggest library), so they load after the rest of the page.
 const CategoryBreakdownChart = lazy(async () => ({
   default: (await import('@/features/insights/charts')).CategoryBreakdownChart,
 }))
@@ -60,66 +59,56 @@ export function DashboardPage() {
   const name = me.data?.profile.display_name ?? me.data?.email?.split('@')[0]
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={name ? `${greeting()}, ${name}` : greeting()}
-        description={`Here's your money in ${formatMonth(month)}.`}
-      />
+    <div className="space-y-12">
+      <PageHeader kicker={`Overview · ${formatMonth(month)}`} title={name ? `${greeting()}, ${name}.` : `${greeting()}.`} />
 
       <BudgetAlerts />
 
-      <div className="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
-        <BalanceHero overview={overview.data} wallets={wallets.data} loading={overview.isPending} />
+      {/* The headline figures, set like a front page */}
+      <section aria-label="Balance and this month" className="grid gap-x-10 gap-y-12 lg:grid-cols-[1.45fr_1fr]">
+        <BalanceStory overview={overview.data} wallets={wallets.data} loading={overview.isPending} />
         <SafeToSpendCard />
-      </div>
+      </section>
       {overview.isError && <p className="text-sm text-destructive">{overview.error.message}</p>}
 
       <QuickEntry />
 
-      <section aria-labelledby="charts-heading" className="space-y-3">
+      <section aria-labelledby="charts-heading" className="space-y-5">
         <SectionTitle id="charts-heading" title="This month" to="/insights" link="All insights" />
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Suspense fallback={<Skeleton className="h-72 w-full rounded-xl" />}>
+        <div className="grid gap-x-10 gap-y-8 lg:grid-cols-2">
+          <Suspense fallback={<Skeleton className="h-72 w-full" />}>
             <CategoryBreakdownChart month={month} />
             <DailySpendingChart month={month} />
           </Suspense>
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <section aria-labelledby="recent-heading" className="space-y-3">
-          <SectionTitle id="recent-heading" title="Recent transactions" to="/transactions" link="See all" />
-          {recent.isPending && <Skeleton className="h-48 w-full rounded-xl" />}
+      <div className="grid gap-x-10 gap-y-12 lg:grid-cols-[1fr_20rem]">
+        <section aria-labelledby="recent-heading" className="space-y-4">
+          <SectionTitle id="recent-heading" title="Latest entries" to="/transactions" link="All transactions" />
+          {recent.isPending && <Skeleton className="h-48 w-full" />}
           {recent.isError && <p className="text-sm text-destructive">{recent.error.message}</p>}
           {recent.isSuccess && recent.data.length === 0 && (
-            <Card>
-              <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
-                <span className="flex size-12 items-center justify-center rounded-2xl bg-secondary text-2xl" aria-hidden>
-                  ৳
-                </span>
-                <p className="font-medium">No transactions yet</p>
-                <p className="max-w-xs text-sm text-muted-foreground">
-                  Record your first expense — try typing “ajke 50 taka cha” above.
-                </p>
-                <AddTransactionButton />
-              </CardContent>
-            </Card>
+            <div className="space-y-3 border-t-2 border-foreground py-8">
+              <p className="font-display text-2xl font-bold">Nothing recorded yet.</p>
+              <p className="max-w-sm text-sm text-muted-foreground">
+                Type “ajke 50 taka cha” in the box above, or add your first entry by hand.
+              </p>
+              <AddTransactionButton />
+            </div>
           )}
           {recent.isSuccess && recent.data.length > 0 && <TransactionList items={recent.data} groupByDay={false} />}
         </section>
 
-        <section aria-labelledby="wallets-heading" className="space-y-3">
+        <section aria-labelledby="wallets-heading" className="space-y-4">
           <SectionTitle id="wallets-heading" title="Wallets" to="/wallets" link="Manage" />
-          {wallets.isPending && <Skeleton className="h-32 w-full rounded-xl" />}
+          {wallets.isPending && <Skeleton className="h-32 w-full" />}
           {wallets.isSuccess && (
-            <ul className="divide-y overflow-hidden rounded-xl border bg-card shadow-xs">
+            <ul className="border-t-2 border-foreground">
               {wallets.data.map((w) => (
-                <li key={w.id} className="flex items-center gap-3 px-4 py-3">
-                  <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
-                    <WalletIcon type={w.type} className="size-4" />
-                  </span>
-                  <span className="flex-1 truncate text-sm font-medium">{w.name}</span>
-                  <Money value={w.balance} className="text-sm font-semibold" />
+                <li key={w.id} className="flex items-baseline justify-between gap-3 border-b py-3">
+                  <span className="text-[15px] font-medium">{w.name}</span>
+                  <Money value={w.balance} className="font-display text-lg font-semibold" />
                 </li>
               ))}
             </ul>
@@ -132,21 +121,19 @@ export function DashboardPage() {
 
 function SectionTitle({ id, title, to, link }: { id: string; title: string; to: string; link: string }) {
   return (
-    <div className="flex items-center justify-between">
-      <h2 id={id} className="text-base font-semibold tracking-tight">
+    <div className="flex items-baseline justify-between gap-4">
+      <h2 id={id} className="text-2xl font-bold sm:text-[28px]">
         {title}
       </h2>
-      <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary">
-        <Link to={to}>
-          {link} <ChevronRight aria-hidden />
-        </Link>
-      </Button>
+      <Link to={to} className="group inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
+        {link} <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
+      </Link>
     </div>
   )
 }
 
-/** The headline card: total balance on a deep-emerald gradient, with this month's flow. */
-function BalanceHero({
+/** Total balance as a giant figure, then this month's flow as three ruled figures. */
+function BalanceStory({
   overview,
   wallets,
   loading,
@@ -156,59 +143,48 @@ function BalanceHero({
   loading: boolean
 }) {
   return (
-    <section
-      aria-label="Total balance and this month"
-      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-hero-from to-hero-to p-6 text-white shadow-lg shadow-primary/10"
-    >
-      {/* Decorative: soft light + a large faint ৳ watermark */}
-      <span className="pointer-events-none absolute -top-24 -right-16 size-64 rounded-full bg-white/10 blur-2xl" aria-hidden />
-      <span className="pointer-events-none absolute -top-6 right-4 text-[160px] leading-none font-bold text-white/[0.045] select-none" aria-hidden>
-        ৳
-      </span>
-
-      <div className="relative space-y-5">
-        <div>
-          <p className="text-sm font-medium text-hero-muted">Total balance</p>
-          {loading || !overview ? (
-            <Skeleton className="mt-2 h-10 w-48 bg-white/20" />
-          ) : (
-            <p className="mt-1 text-4xl font-semibold tracking-tight sm:text-[44px]">
-              {formatTaka(overview.total_balance, { trimZeroDecimals: true })}
-            </p>
-          )}
-        </div>
-
-        {wallets && wallets.length > 0 && (
-          <ul className="flex flex-wrap gap-2" aria-label="Wallet balances">
-            {wallets.slice(0, 4).map((w) => (
-              <li key={w.id} className="flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1 text-xs ring-1 ring-white/15">
-                <WalletIcon type={w.type} className="size-3.5 text-gold" />
-                <span className="text-hero-muted">{w.name}</span>
-                <span className="font-semibold">{formatTaka(w.balance, { trimZeroDecimals: true })}</span>
-              </li>
-            ))}
-          </ul>
+    <div className="space-y-7 border-t-2 border-foreground pt-4">
+      <div className="space-y-2">
+        <Kicker>Total balance, all wallets</Kicker>
+        {loading || !overview ? (
+          <Skeleton className="h-20 w-72" />
+        ) : (
+          <BigMoney value={overview.total_balance} className="text-[64px] sm:text-[88px]" />
         )}
-
-        <dl className="grid grid-cols-3 gap-3 border-t border-white/15 pt-4">
-          <HeroStat icon={<ArrowDownLeft className="size-4" aria-hidden />} label="Income" value={overview?.income} />
-          <HeroStat icon={<ArrowUpRight className="size-4" aria-hidden />} label="Expenses" value={overview?.expense} />
-          <HeroStat icon={<Scale className="size-4" aria-hidden />} label="Net" value={overview?.net} signed />
-        </dl>
+        {wallets && wallets.length > 0 && (
+          <p className="text-sm text-muted-foreground">
+            {wallets.map((w, i) => (
+              <span key={w.id}>
+                {i > 0 && <span className="px-2 text-border">/</span>}
+                {w.name} <span className="font-semibold text-foreground">{formatTaka(w.balance, { trimZeroDecimals: true })}</span>
+              </span>
+            ))}
+          </p>
+        )}
       </div>
-    </section>
+
+      <dl className="grid grid-cols-3 border-t">
+        <Figure label="In this month" value={overview?.income} tone="in" />
+        <Figure label="Out this month" value={overview?.expense} />
+        <Figure label="Net" value={overview?.net} signed />
+      </dl>
+    </div>
   )
 }
 
-function HeroStat({ icon, label, value, signed }: { icon: ReactNode; label: string; value?: string; signed?: boolean }) {
+function Figure({ label, value, signed, tone }: { label: string; value?: string; signed?: boolean; tone?: 'in' }) {
+  const negative = value !== undefined && isNegative(value)
   return (
-    <div className="min-w-0">
-      <dt className="flex items-center gap-1.5 text-xs text-hero-muted">
-        <span className="flex size-5 items-center justify-center rounded-md bg-white/15">{icon}</span>
-        {label}
-      </dt>
-      <dd className="mt-1 truncate text-base font-semibold sm:text-lg">
-        {value === undefined ? '—' : formatTaka(value, { trimZeroDecimals: true, showPlus: signed && !isNegative(value) })}
+    <div className="border-r py-3 pr-3 last:border-r-0 [&:not(:first-child)]:pl-4">
+      <dt className="text-[11px] font-semibold tracking-[0.12em] text-muted-foreground uppercase">{label}</dt>
+      <dd
+        className={cn(
+          'mt-1 truncate font-display text-xl font-bold sm:text-2xl',
+          tone === 'in' && 'text-primary',
+          negative && 'text-destructive',
+        )}
+      >
+        {value === undefined ? '-' : formatTaka(value, { trimZeroDecimals: true, showPlus: signed && !negative })}
       </dd>
     </div>
   )

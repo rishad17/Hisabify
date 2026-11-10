@@ -15,7 +15,7 @@ export function PlanPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">Plan</h1>
         <p className="text-sm text-muted-foreground">
-          Your budget, monthly bills and expected income — the app reserves them before telling you what's safe to spend.
+          Your budget, monthly bills and expected income. The app reserves them before telling you what's safe to spend.
         </p>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
