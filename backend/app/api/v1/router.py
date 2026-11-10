@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from app.api.v1 import ai, analytics, categories, me, transactions, wallets
+from app.api.v1 import ai, analytics, categories, me, planning, transactions, wallets
 
 api_router = APIRouter()
 api_router.include_router(me.router, prefix="/me", tags=["me"])
@@ -11,3 +11,7 @@ api_router.include_router(wallets.router, prefix="/wallets", tags=["wallets"])
 api_router.include_router(transactions.router, prefix="/transactions", tags=["transactions"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 api_router.include_router(ai.router, prefix="/ai", tags=["ai"])
+api_router.include_router(planning.budgets, prefix="/budgets", tags=["budgets"])
+api_router.include_router(planning.bills, prefix="/bills", tags=["bills"])
+api_router.include_router(planning.expected, prefix="/expected-incomes", tags=["expected income"])
+api_router.include_router(planning.plan, prefix="/planning", tags=["planning"])

@@ -5,6 +5,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.common import Money
+from app.schemas.planning import BudgetDraftOut, CategoryBrief
 from app.schemas.transaction import CategoryRef
 
 
@@ -70,3 +71,31 @@ class TranscriptOut(BaseModel):
     text: str
     language: Literal["bn", "en", "mixed", "unknown"]
     provider: str
+
+
+class AIBudgetIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    text: str = Field(min_length=1, max_length=1000)
+    month: str = Field(pattern=r"^\d{4}-(0[1-9]|1[0-2])$", examples=["2026-11"])
+
+
+class UnderstoodItem(BaseModel):
+    category: CategoryBrief
+    amount: Money
+    fixed: bool
+
+
+class Understood(BaseModel):
+    """Exactly what the AI read from the message — shown so the user can check it."""
+
+    planned_income: Money | None
+    savings_target: Money | None
+    items: list[UnderstoodItem]
+
+
+class AIBudgetOut(BaseModel):
+    kind: Literal["budget_draft", "clarification"]
+    message: str | None
+    understood: Understood
+    draft: BudgetDraftOut | None

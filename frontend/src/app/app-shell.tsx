@@ -5,6 +5,7 @@ import {
   Loader2,
   LogOut,
   Settings,
+  Target,
   Wallet,
   WalletCards,
   type LucideIcon,
@@ -21,6 +22,7 @@ import { cn } from '@/lib/utils'
 const NAV: { to: string; label: string; icon: LucideIcon }[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/transactions', label: 'Transactions', icon: ListOrdered },
+  { to: '/plan', label: 'Plan', icon: Target },
   { to: '/wallets', label: 'Wallets', icon: WalletCards },
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
@@ -76,7 +78,7 @@ export function AppShell() {
       <AddTransactionButton floating className="fixed right-4 bottom-20 z-30 md:hidden" />
       <nav
         aria-label="Main"
-        className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
       >
         {NAV.map((item) => (
           <NavLink
