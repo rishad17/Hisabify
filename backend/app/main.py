@@ -18,6 +18,7 @@ from app.core.config import Settings, get_settings
 from app.core.db import make_engine, make_session_factory
 from app.core.errors import register_error_handlers
 from app.core.security import TokenVerifier
+from app.voice.transcriber import SpeechTranscriber
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -75,6 +76,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         else None
     )
     app.state.ai_rate_limiter = RateLimiter(settings.ai_requests_per_minute)
+    # Voice: Gemini transcription, with optional Groq Whisper as a last fallback.
+    app.state.transcriber = (
+        SpeechTranscriber(app.state.llm, settings.groq_api_key)
+        if app.state.llm is not None or settings.groq_api_key
+        else None
+    )
 
     register_error_handlers(app)
     app.include_router(health_router)
