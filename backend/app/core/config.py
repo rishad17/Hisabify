@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     # Only for older projects still signing tokens with the legacy shared secret (HS256).
     # New projects use asymmetric signing keys published via JWKS — leave this empty.
     supabase_jwt_secret: str | None = None
+    # SECRET admin key (sb_secret_… or legacy service_role). Only used to delete a user's
+    # sign-in when they delete their account. Never expose it to the frontend.
+    supabase_service_role_key: str | None = None
 
     # --- AI ---
     gemini_api_key: str | None = None
