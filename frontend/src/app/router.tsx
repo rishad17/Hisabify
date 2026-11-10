@@ -7,6 +7,7 @@ import { SignupPage } from '@/features/auth/signup-page'
 import { DashboardPage } from '@/features/ledger/dashboard-page'
 import { TransactionsPage } from '@/features/ledger/transactions-page'
 import { WalletsPage } from '@/features/ledger/wallets-page'
+import { PlanPage } from '@/features/planning/plan-page'
 import { SettingsPage } from '@/features/settings/settings-page'
 
 export const router = createBrowserRouter([
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '/', element: <DashboardPage /> },
           { path: '/transactions', element: <TransactionsPage /> },
+          { path: '/plan', element: <PlanPage /> },
           { path: '/wallets', element: <WalletsPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],

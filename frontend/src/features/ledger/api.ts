@@ -86,6 +86,11 @@ export function invalidateMoney(queryClient: QueryClient) {
     queryClient.invalidateQueries({ queryKey: ['wallets'] }),
     queryClient.invalidateQueries({ queryKey: ['transactions'] }),
     queryClient.invalidateQueries({ queryKey: ['overview'] }),
+    // Planning views depend on transactions too.
+    queryClient.invalidateQueries({ queryKey: ['budget'] }),
+    queryClient.invalidateQueries({ queryKey: ['bills'] }),
+    queryClient.invalidateQueries({ queryKey: ['expected'] }),
+    queryClient.invalidateQueries({ queryKey: ['safe-to-spend'] }),
   ])
 }
 

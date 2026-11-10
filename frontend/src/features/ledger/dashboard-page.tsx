@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { QuickEntry } from '@/features/assistant/quick-entry'
+import { SafeToSpendCard } from '@/features/planning/safe-to-spend-card'
 import { useOverview, useRecentTransactions, useWallets } from '@/features/ledger/api'
 import { Money } from '@/features/ledger/amount'
 import { AddTransactionButton } from '@/features/ledger/add-transaction-button'
@@ -50,6 +51,8 @@ export function DashboardPage() {
       </div>
 
       <QuickEntry />
+
+      <SafeToSpendCard />
 
       {/* Overview cards */}
       <section aria-label="This month" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
