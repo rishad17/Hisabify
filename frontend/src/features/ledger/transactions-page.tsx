@@ -51,8 +51,8 @@ export function TransactionsPage() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight">Transactions</h1>
-        <AddTransactionButton className="hidden sm:inline-flex" />
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">Transactions</h1>
+        <AddTransactionButton className="hidden sm:inline-flex lg:hidden" />
       </div>
 
       {/* Month switcher + month totals */}

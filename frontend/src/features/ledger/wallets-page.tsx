@@ -92,7 +92,7 @@ export function WalletsPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Wallets</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">Wallets</h1>
           <p className="text-sm text-muted-foreground">
             Balances are calculated from your transactions. Use “Correct balance” if they drift from reality.
           </p>
