@@ -92,3 +92,18 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 
   return body as T
 }
+
+/** Download a file from the API (with auth) and save it, e.g. the CSV export. */
+export async function apiDownload(path: string, filename: string): Promise<void> {
+  const response = await fetch(`${config.apiUrl}${path}`, { headers: await authHeader() })
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as { error?: { code?: string; message?: string } } | null
+    throw new ApiError(response.status, body?.error?.code ?? 'http_error', body?.error?.message ?? 'Download failed.')
+  }
+  const url = URL.createObjectURL(await response.blob())
+  const link = Object.assign(document.createElement('a'), { href: url, download: filename })
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
