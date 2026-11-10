@@ -192,6 +192,8 @@ def month_forecast(db: Session, user_id: uuid.UUID) -> dict:
         "remaining_days": remaining_days,
         "unpaid_bills": unpaid,
         "projected": proj.projected,
+        # Precomputed so nobody (UI or assistant) has to subtract: still to come this month.
+        "projected_still_to_spend": proj.projected - spent,
         "low": proj.low,
         "high": proj.high,
         "budget_total": budget["total_budget"] if budget else None,

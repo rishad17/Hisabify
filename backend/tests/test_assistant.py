@@ -202,3 +202,30 @@ def test_simulate_endpoint(api):
     assert api.get("/transactions").json()["total"] == 1  # nothing recorded
     bad = api.post("/planning/simulate", {"amount": "0"})
     assert bad.status_code == 422
+
+
+# ------------------------------------------------------------------ grounding
+
+
+def test_wrong_number_is_corrected(db_client, api):
+    api.save(api.income("1000"))
+    llm = ScriptedLLM(
+        [
+            ("call", [("get_balances", {})]),
+            ("text", "You have ৳1,100."),  # copying slip
+            ("text", "You have ৳1,000."),  # corrected after the grounding check
+        ]
+    )
+    body = ask(db_client, api, llm, text="koto taka ache?").json()
+    assert body["answer"] == "You have ৳1,000."
+    assert "not in the tool results: ৳1,100" in llm.turns[-1]["contents"][-1]["parts"][0]["text"]
+
+
+def test_still_wrong_number_is_flagged(db_client, api):
+    api.save(api.income("1000"))
+    llm = ScriptedLLM(
+        [("call", [("get_balances", {})]), ("text", "You have ৳1,100."), ("text", "Still ৳1,100.")]
+    )
+    body = ask(db_client, api, llm).json()
+    assert body["answer"].startswith("Still ৳1,100.")
+    assert "couldn't verify some numbers" in body["answer"]

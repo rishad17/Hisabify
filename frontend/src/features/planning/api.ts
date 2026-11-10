@@ -252,4 +252,78 @@ export function useSafeToSpend() {
   })
 }
 
+// ------------------------------------------------------------------ forecast & adaptive budget
+
+export type Forecast = {
+  month: string
+  spent_so_far: string
+  typical_daily: string
+  remaining_days: number
+  unpaid_bills: string
+  projected: string
+  projected_still_to_spend: string
+  low: string
+  high: string
+  budget_total: string | null
+  planned_income: string | null
+  projected_vs_plan: string | null
+  confidence: 'low' | 'medium' | 'good'
+  history_days: number
+  categories: { category: CategoryBrief; budget: string; spent: string; projected: string; projected_remaining: string }[]
+  series: { date: string; actual: string | null; projected: string | null }[]
+  explanation: string[]
+}
+
+export type BudgetAlert = {
+  category: CategoryBrief
+  kind: 'over' | 'nearly_used' | 'projected_over'
+  severity: 'warning' | 'critical'
+  message: string
+}
+
+export type Adjustment = {
+  id: string
+  proposed_by: 'ai' | 'system' | 'user'
+  status: 'proposed' | 'approved' | 'rejected'
+  changes: { category_id: string; category_name: string; old: string; new: string }[]
+  reason: string | null
+  created_at: string
+  decided_at: string | null
+}
+
+export function useForecast() {
+  return useQuery({ queryKey: ['forecast'], queryFn: () => apiFetch<Forecast>('/api/v1/planning/forecast') })
+}
+
+export function useAlerts() {
+  return useQuery({ queryKey: ['alerts'], queryFn: () => apiFetch<BudgetAlert[]>('/api/v1/planning/alerts') })
+}
+
+export function useAdjustmentHistory(month: string) {
+  return useQuery({
+    queryKey: ['adjustments', month],
+    queryFn: () => apiFetch<Adjustment[]>(`/api/v1/budgets/${month}/adjustments`),
+  })
+}
+
+export function useSuggestAdjustment() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<{ suggestion: Adjustment | null; message: string | null }>('/api/v1/budgets/suggest-adjustment', {
+        method: 'POST',
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['adjustments'] }),
+  })
+}
+
+export function useDecideAdjustment() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, approve }: { id: string; approve: boolean }) =>
+      apiFetch<Adjustment>(`/api/v1/budgets/adjustments/${id}/${approve ? 'approve' : 'reject'}`, { method: 'POST' }),
+    onSuccess: () => invalidateMoney(qc),
+  })
+}
+
 export { newKey }

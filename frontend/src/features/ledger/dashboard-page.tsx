@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton'
 import { QuickEntry } from '@/features/assistant/quick-entry'
 import { CategoryBreakdownChart, DailySpendingChart } from '@/features/insights/charts'
+import { BudgetAlerts } from '@/features/planning/budget-alerts'
 import { SafeToSpendCard } from '@/features/planning/safe-to-spend-card'
 import { useOverview, useRecentTransactions, useWallets } from '@/features/ledger/api'
 import { Money } from '@/features/ledger/amount'
@@ -52,6 +53,8 @@ export function DashboardPage() {
       </div>
 
       <QuickEntry />
+
+      <BudgetAlerts />
 
       <SafeToSpendCard />
 

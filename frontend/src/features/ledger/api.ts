@@ -91,6 +91,9 @@ export function invalidateMoney(queryClient: QueryClient) {
     queryClient.invalidateQueries({ queryKey: ['bills'] }),
     queryClient.invalidateQueries({ queryKey: ['expected'] }),
     queryClient.invalidateQueries({ queryKey: ['safe-to-spend'] }),
+    queryClient.invalidateQueries({ queryKey: ['forecast'] }),
+    queryClient.invalidateQueries({ queryKey: ['alerts'] }),
+    queryClient.invalidateQueries({ queryKey: ['adjustments'] }),
   ])
 }
 

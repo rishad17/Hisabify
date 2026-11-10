@@ -112,6 +112,7 @@ def test_forecast_formula_and_confidence(api):
     assert f["confidence"] == "low" and f["history_days"] == 10
     expected = D(f["spent_so_far"]) + D("100") * f["remaining_days"] + D(f["unpaid_bills"])
     assert D(f["projected"]) == expected
+    assert D(f["projected_still_to_spend"]) == D(f["projected"]) - D(f["spent_so_far"])
     assert D(f["low"]) <= D(f["projected"]) <= D(f["high"])
     # Chart series: actual up to today, projection after.
     assert f["series"][t.day - 1]["date"] == t.isoformat()

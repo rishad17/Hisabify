@@ -4,6 +4,8 @@ import {
   BarChart,
   CartesianGrid,
   LabelList,
+  Line,
+  LineChart,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -24,7 +26,7 @@ import {
   TooltipBox,
   VIZ,
 } from '@/features/insights/chart-parts'
-import { useBudget } from '@/features/planning/api'
+import { useBudget, useForecast, type Forecast } from '@/features/planning/api'
 import { formatDayLabel, formatMonth } from '@/lib/dates'
 import { compactTaka, formatTaka, isNegative } from '@/lib/money'
 
@@ -404,6 +406,111 @@ export function BudgetVsActualChart({ month }: { month: string }) {
             formatTaka(i.amount),
             formatTaka(i.spent),
             isNegative(i.remaining) ? `⚠ Over ${formatTaka(i.remaining.slice(1))}` : formatTaka(i.remaining),
+          ])}
+        />
+      }
+    />
+  )
+}
+
+// ------------------------------------------------------------------ month-end forecast
+
+export function ForecastChart() {
+  const q = useForecast()
+  const f = q.data
+  const data = (f?.series ?? []).map((p) => ({
+    day: Number(p.date.slice(8)),
+    date: p.date,
+    actual: p.actual === null ? null : num(p.actual),
+    projected: p.projected === null ? null : num(p.projected),
+    raw: p,
+  }))
+  const budget = f?.budget_total ? num(f.budget_total) : null
+  const overBudget = f?.budget_total && num(f.projected) > num(f.budget_total)
+
+  return (
+    <ChartCard
+      title="Month-end forecast"
+      description={
+        f
+          ? `An estimate · confidence ${f.confidence}${f.confidence === 'low' ? ' (less than 2 weeks of history)' : ''}`
+          : undefined
+      }
+      headline={
+        f && (
+          <div className="space-y-0.5">
+            <p className="text-sm">
+              <span className="text-2xl font-semibold">≈ {t(f.projected)}</span>{' '}
+              <span className="text-muted-foreground">
+                likely between {t(f.low)} and {t(f.high)}
+              </span>
+            </p>
+            {f.budget_total && (
+              <p className={`flex items-center gap-1.5 text-sm ${overBudget ? 'text-destructive' : 'text-muted-foreground'}`}>
+                {overBudget && <AlertTriangle className="size-4" aria-hidden />}
+                {overBudget
+                  ? `About ${t(String(num(f.projected) - num(f.budget_total)))} over your ${t(f.budget_total)} budget`
+                  : `Within your ${t(f.budget_total)} budget`}
+              </p>
+            )}
+          </div>
+        )
+      }
+      loading={q.isPending}
+      error={q.error?.message}
+      empty={!f || f.series.length === 0}
+      chart={
+        <>
+          <Legend
+            items={[
+              { label: 'Spent so far', color: VIZ.series1 },
+              { label: 'Projected', color: VIZ.muted },
+              // The budget line is labelled directly on the chart, so it isn't in the legend.
+            ]}
+          />
+          <div className="h-56" role="img" aria-label="Line chart of cumulative spending this month with a projection to month end">
+            <ResponsiveContainer>
+              <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+                <CartesianGrid vertical={false} stroke={VIZ.grid} />
+                <XAxis dataKey="day" tick={AXIS_TICK} tickLine={false} axisLine={{ stroke: VIZ.grid }} interval="preserveStartEnd" minTickGap={16} />
+                <YAxis tick={AXIS_TICK} tickLine={false} axisLine={false} width={56} tickFormatter={compactTaka} allowDecimals={false} />
+                <Tooltip
+                  cursor={{ stroke: VIZ.grid }}
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.[0]) return null
+                    const p = payload[0].payload.raw as Forecast['series'][number]
+                    return (
+                      <TooltipBox
+                        title={formatDayLabel(p.date)}
+                        rows={[
+                          ...(p.actual !== null ? [{ label: 'Spent so far', value: t(p.actual), color: VIZ.series1 }] : []),
+                          ...(p.projected !== null && p.actual === null ? [{ label: 'Projected', value: t(p.projected), color: VIZ.muted }] : []),
+                        ]}
+                      />
+                    )
+                  }}
+                />
+                {budget !== null && (
+                  <ReferenceLine y={budget} stroke="var(--muted-foreground)" strokeWidth={1} label={{ value: 'budget', position: 'insideTopLeft', fill: VIZ.text, fontSize: 11 }} />
+                )}
+                <Line isAnimationActive={ANIMATE} type="linear" dataKey="actual" stroke={VIZ.series1} strokeWidth={2} dot={false} connectNulls={false} strokeLinecap="round" />
+                <Line isAnimationActive={ANIMATE} type="linear" dataKey="projected" stroke={VIZ.muted} strokeWidth={2} dot={false} connectNulls={false} strokeLinecap="round" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+            {f?.explanation.map((line) => <li key={line}>{line}</li>)}
+          </ul>
+        </>
+      }
+      table={
+        <DataTable
+          head={['Category', 'Budget', 'Spent', 'Projected']}
+          rows={(f?.categories ?? []).map((c) => [
+            c.category.name,
+            formatTaka(c.budget),
+            formatTaka(c.spent),
+            (isNegative(c.projected_remaining) ? '⚠ ' : '') + formatTaka(c.projected),
           ])}
         />
       }

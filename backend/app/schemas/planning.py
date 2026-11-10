@@ -267,6 +267,7 @@ class ForecastOut(BaseModel):
     remaining_days: int
     unpaid_bills: Money
     projected: Money
+    projected_still_to_spend: Money  # projected − spent so far
     low: Money
     high: Money
     budget_total: Money | None
