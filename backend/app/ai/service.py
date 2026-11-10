@@ -18,6 +18,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.ai.assistant import answer_question
 from app.ai.drafts import Draft, DraftItem, Issue, build_draft, flag_reused_amounts
 from app.ai.extraction import CategoryInfo, WalletInfo, extract
 from app.ai.llm_client import LLMClient, LLMError
@@ -29,10 +30,6 @@ from app.services.ledger import today_for
 logger = logging.getLogger(__name__)
 
 UNSUPPORTED_MESSAGES = {
-    "question": (
-        "Questions about your spending are coming soon. For now, check the Dashboard and "
-        "Transactions pages."
-    ),
     "budget": "To plan a budget, open Plan → Budget and describe your month there.",
 }
 OTHER_MESSAGE = (
@@ -113,7 +110,13 @@ def _log(
 
 
 def process_message(
-    db: Session, user_id: uuid.UUID, text: str, *, llm: LLMClient, source: str = "text"
+    db: Session,
+    user_id: uuid.UUID,
+    text: str,
+    *,
+    llm: LLMClient,
+    source: str = "text",
+    history: list[dict[str, str]] | None = None,
 ) -> dict:
     categories, wallets, profile = _load_context(db, user_id)
     store_text = bool(profile and profile.store_ai_text)
@@ -138,6 +141,11 @@ def process_message(
         ) from exc
 
     draft: Draft = build_draft(result.data, categories=categories, wallets=wallets, today=today)
+
+    # A question ("ei mash e koto khoroch holo?") goes to the read-only assistant.
+    if draft.intent == "question" and not draft.items:
+        reply = answer_question(db, user_id, text, llm=llm, history=history)
+        return {"kind": "answer", "answer": reply["answer"], "tools_used": reply["tools_used"]}
     flag_reused_amounts(draft.items, clean)
     _flag_possible_duplicates(
         db, user_id, draft.items, profile.timezone if profile else "Asia/Dhaka"

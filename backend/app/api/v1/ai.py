@@ -3,13 +3,22 @@ from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from app.ai import service
+from app.ai.assistant import answer_question
 from app.ai.budget_ai import plan_from_text
 from app.ai.llm_client import LLMClient
 from app.api.v1.transactions import parse_month
 from app.core.db import get_db
 from app.core.errors import AppError
 from app.core.security import CurrentUser, get_current_user
-from app.schemas.ai import AIBudgetIn, AIBudgetOut, AIMessageIn, AIMessageOut, TranscriptOut
+from app.schemas.ai import (
+    AIBudgetIn,
+    AIBudgetOut,
+    AIMessageIn,
+    AIMessageOut,
+    AskIn,
+    AskOut,
+    TranscriptOut,
+)
 from app.voice.audio_check import InvalidWav, is_probably_silent
 from app.voice.transcriber import NoSpeechError, Transcriber, TranscriptionError
 
@@ -52,7 +61,14 @@ def ai_message(
     Nothing is saved. Confirm by posting the (possibly edited) items to
     /transactions/batch with `Idempotency-Key: <draft.draft_id>`.
     """
-    return service.process_message(db, user.id, body.text, llm=llm, source=body.source)
+    return service.process_message(
+        db,
+        user.id,
+        body.text,
+        llm=llm,
+        source=body.source,
+        history=[t.model_dump() for t in body.history],
+    )
 
 
 def get_transcriber(request: Request) -> Transcriber:
@@ -131,3 +147,20 @@ def ai_budget(
     month = parse_month(body.month)
     assert month is not None
     return plan_from_text(db, user.id, body.text, llm=llm, month=month)
+
+
+@router.post("/ask", response_model=AskOut)
+def ask(
+    body: AskIn,
+    user: CurrentUser = Depends(rate_limit),
+    db: Session = Depends(get_db),
+    llm: LLMClient = Depends(get_llm),
+) -> dict:
+    """Answer a question from the user's own data using READ-ONLY tools.
+
+    Returns the answer plus every tool call and its exact result, so the UI can show the
+    real numbers next to the model's wording. Nothing is ever written.
+    """
+    return answer_question(
+        db, user.id, body.text, llm=llm, history=[t.model_dump() for t in body.history]
+    )
