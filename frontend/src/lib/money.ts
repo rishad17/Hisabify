@@ -62,6 +62,21 @@ export function sumAmounts(amounts: string[]): string {
   return negative ? `-${text}` : text
 }
 
+/**
+ * Compact label for chart AXES only (geometry already uses numbers there):
+ * 950 → "৳950", 2000 → "৳2,000", 15000 → "৳15K", 120000 → "৳1.2L" (lakh), 2.5 crore → "৳2.5Cr".
+ * Exact amounts are always available in tooltips and the table view.
+ */
+export function compactTaka(value: number): string {
+  const sign = value < 0 ? '−' : ''
+  const n = Math.abs(value)
+  const trim = (x: number) => String(Math.round(x * 10) / 10)
+  if (n >= 10_000_000) return `${sign}৳${trim(n / 10_000_000)}Cr`
+  if (n >= 100_000) return `${sign}৳${trim(n / 100_000)}L`
+  if (n >= 10_000) return `${sign}৳${trim(n / 1_000)}K`
+  return `${sign}৳${groupLakh(String(Math.round(n)))}`
+}
+
 export function isNegative(amount: string): boolean {
   return amount.trim().startsWith('-') && !/^-0*(\.0*)?$/.test(amount.trim())
 }

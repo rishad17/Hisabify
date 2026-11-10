@@ -4,6 +4,7 @@ import { AppShell } from '@/app/app-shell'
 import { LoginPage } from '@/features/auth/login-page'
 import { RedirectIfAuthed, RequireAuth } from '@/features/auth/require-auth'
 import { SignupPage } from '@/features/auth/signup-page'
+import { InsightsPage } from '@/features/insights/insights-page'
 import { DashboardPage } from '@/features/ledger/dashboard-page'
 import { TransactionsPage } from '@/features/ledger/transactions-page'
 import { WalletsPage } from '@/features/ledger/wallets-page'
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
           { path: '/', element: <DashboardPage /> },
           { path: '/transactions', element: <TransactionsPage /> },
           { path: '/plan', element: <PlanPage /> },
+          { path: '/insights', element: <InsightsPage /> },
           { path: '/wallets', element: <WalletsPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
