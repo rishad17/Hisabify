@@ -38,6 +38,7 @@ export function AuthLayout({
         <div className="relative my-auto max-w-md space-y-8">
           <h2 className="text-4xl leading-tight font-semibold tracking-tight">
             Talk to your money.
+            <span className="block text-hero-muted">Then let it work for you.</span>
           </h2>
 
           <ul className="space-y-3">
