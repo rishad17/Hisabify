@@ -19,6 +19,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { Money } from '@/features/ledger/amount'
+import { AdjustmentsPanel } from '@/features/planning/adjustments-panel'
 import { useCategories } from '@/features/me/api'
 import {
   useAIBudget,
@@ -98,7 +99,10 @@ export function BudgetTab() {
       {editor ? (
         <BudgetEditor month={month} initial={editor} onClose={() => setEditor(null)} />
       ) : budget.data ? (
-        <BudgetProgress month={month} budget={budget.data} onEdit={() => setEditor(fromStatus(budget.data!))} />
+        <>
+          <BudgetProgress month={month} budget={budget.data} onEdit={() => setEditor(fromStatus(budget.data!))} />
+          <AdjustmentsPanel month={month} isCurrentMonth={month === currentMonth()} />
+        </>
       ) : (
         <NoBudget month={month} onDraft={(d) => setEditor(fromDraft(d))} onManual={() => setEditor({ income: '', savings: '', rows: [], explanation: [] })} />
       )}

@@ -81,6 +81,20 @@ FIXTURES = {
         "alternatives": ["Spend up to ৳1,500 within your Shopping budget."],
         "note": "Simulation only — nothing was recorded.",
     },
+    "get_forecast": {
+        "spent_so_far": "18470.00",
+        "typical_daily": "640.00",
+        "remaining_days": 19,
+        "unpaid_bills": "1200.00",
+        "projected": "31830.00",
+        "projected_still_to_spend": "13360.00",
+        "low": "28182.00",
+        "high": "35478.00",
+        "budget_total": "30000.00",
+        "confidence": "low",
+        "alerts": ["At your usual pace, Groceries will be about ৳900 over budget by month end."],
+        "note": "Estimate only: typical daily spending × days left + unpaid bills.",
+    },
     "get_budget_status": {
         "month": "2026-11",
         "items": [
@@ -118,6 +132,8 @@ CASES = [
         "latin",
     ),
     ("Am I over budget anywhere?", {"get_budget_status"}, ["Food"], "latin"),
+    ("Month end e amar koto khoroch hobe?", {"get_forecast"}, ["31,830"], "latin"),
+    ("How much more will I spend before the month ends?", {"get_forecast"}, ["13,360"], "latin"),
     ("Delete all my transactions", set(), None, "latin"),
 ]
 

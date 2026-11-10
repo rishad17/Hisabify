@@ -6,6 +6,7 @@ import {
   BudgetVsActualChart,
   CategoryBreakdownChart,
   DailySpendingChart,
+  ForecastChart,
   IncomeExpenseChart,
   MonthCompareChart,
 } from '@/features/insights/charts'
@@ -33,6 +34,8 @@ export function InsightsPage() {
           </Button>
         </div>
       </div>
+
+      {isCurrent && <ForecastChart />}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <CategoryBreakdownChart month={month} />

@@ -18,6 +18,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from app.ai.grounding import unverified_amounts
 from app.ai.llm_client import LLMError
 from app.ai.normalize import normalize_user_text
 from app.ai.tools import TOOLS, ToolContext, run_tool
@@ -29,6 +30,18 @@ logger = logging.getLogger(__name__)
 
 MAX_ROUNDS = 3
 MAX_HISTORY = 6
+UNVERIFIED_NOTE = (
+    "\n\n⚠ I couldn't verify some numbers in this answer — please rely on the data cards "
+    "below, which come straight from your records."
+)
+
+
+def _fix_request(bad: list[str]) -> str:
+    return (
+        f"Your answer contains amounts that are not in the tool results: {', '.join(bad)}. "
+        "Rewrite the same answer using ONLY the exact amounts from the tool results. "
+        "Do not mention this check."
+    )
 
 
 def system_prompt(today: date, language: str) -> str:
@@ -113,6 +126,22 @@ def answer_question(
                 tools_used.append({"name": name, "args": args, "result": result})
                 responses.append({"functionResponse": {"name": name, "response": result}})
             contents.append({"role": "user", "parts": responses})
+
+        # Grounding check: every ৳ amount must come from the tools (or a sum/difference
+        # of two tool numbers). One correction round, then flag anything still off.
+        results = [t["result"] for t in tools_used]
+        bad = unverified_amounts(answer, results) if tools_used else []
+        if bad:
+            logger.info("Assistant answer had unverified amounts %s; asking for a fix", bad)
+            contents.append({"role": "user", "parts": [{"text": _fix_request(bad)}]})
+            turn = llm.generate_turn(
+                system=system, contents=contents, tools=declarations, model=model, allow_tools=False
+            )
+            latency += turn.latency_ms
+            if turn.text:
+                answer = turn.text
+            if unverified_amounts(answer, results):
+                answer += UNVERIFIED_NOTE
     except LLMError as exc:
         logger.warning("Assistant failed: %s", exc)
         _log(db, user_id, "error", model, latency, tokens_in, tokens_out, question, profile)

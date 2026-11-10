@@ -10,6 +10,8 @@ from app.api.v1.transactions import IdempotencyKey, parse_month
 from app.core.db import get_db
 from app.core.security import CurrentUser, get_current_user
 from app.schemas.planning import (
+    AdjustmentOut,
+    AlertOut,
     BillIn,
     BillOut,
     BillUpdate,
@@ -20,14 +22,16 @@ from app.schemas.planning import (
     ExpectedIn,
     ExpectedOut,
     ExpectedUpdate,
+    ForecastOut,
     PayBillIn,
     ReceiveIn,
     SafeToSpendOut,
     SimulateIn,
     SimulationOut,
+    SuggestOut,
 )
 from app.schemas.transaction import TransactionOut
-from app.services import ledger, planning, simulator
+from app.services import adjustments, forecast, ledger, planning, simulator
 
 budgets = APIRouter()
 bills = APIRouter()
@@ -253,3 +257,59 @@ def simulate(
 ) -> dict:
     """What-if purchase check. Read-only: nothing is recorded."""
     return simulator.simulate_purchase(db, user.id, body.amount, body.category_id).__dict__
+
+
+# ------------------------------------------------------------------ forecast & adaptive budget
+
+
+@plan.get("/forecast", response_model=ForecastOut)
+def get_forecast(
+    user: CurrentUser = Depends(get_current_user), db: Session = Depends(get_db)
+) -> dict:
+    """Projected month-end spending (an estimate with a range and confidence level)."""
+    return forecast.month_forecast(db, user.id)
+
+
+@plan.get("/alerts", response_model=list[AlertOut])
+def get_alerts(
+    user: CurrentUser = Depends(get_current_user), db: Session = Depends(get_db)
+) -> list[dict]:
+    """Budget warnings for this month (over, nearly used up, on track to overshoot)."""
+    return forecast.budget_alerts(db, user.id)
+
+
+@budgets.post("/suggest-adjustment", response_model=SuggestOut)
+def suggest_adjustment(
+    user: CurrentUser = Depends(get_current_user), db: Session = Depends(get_db)
+) -> dict:
+    """Propose moving budget between categories. Changes NOTHING until approved."""
+    suggestion, message = adjustments.create_suggestion(db, user.id)
+    return {"suggestion": suggestion, "message": message}
+
+
+@budgets.get("/{month}/adjustments", response_model=list[AdjustmentOut])
+def adjustment_history(
+    month: str = Month,
+    user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    """Every proposed, approved and rejected change to this month's budget."""
+    return adjustments.history(db, user.id, _month(month))
+
+
+@budgets.post("/adjustments/{adj_id}/approve", response_model=AdjustmentOut)
+def approve_adjustment(
+    adj_id: uuid.UUID,
+    user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    return adjustments.decide(db, user.id, adj_id, approve=True)
+
+
+@budgets.post("/adjustments/{adj_id}/reject", response_model=AdjustmentOut)
+def reject_adjustment(
+    adj_id: uuid.UUID,
+    user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    return adjustments.decide(db, user.id, adj_id, approve=False)
