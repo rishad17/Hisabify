@@ -37,7 +37,7 @@ export function AuthLayout({
 
         <div className="relative my-auto max-w-md space-y-8">
           <h2 className="text-4xl leading-tight font-semibold tracking-tight">
-            Talk to your money like you talk to a friend.
+            Talk to your money.
           </h2>
 
           <ul className="space-y-3">
