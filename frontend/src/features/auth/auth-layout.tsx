@@ -1,13 +1,20 @@
-import { CheckCircle2, Mic, ShieldCheck, Sparkles } from 'lucide-react'
+import { Database, MessageSquareText, MessagesSquare, Mic } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { Logo, LogoMark } from '@/components/brand'
 import { ThemeToggle } from '@/components/theme-toggle'
 
+const CONVERSATION = [
+  { from: 'you', text: 'Amar koto taka ache?' },
+  { from: 'app', text: '৳11,990 across Cash and bKash.' },
+  { from: 'you', text: 'Ar ei shoptahe koto khoroch korte pari?' },
+  { from: 'app', text: 'About ৳615 — ৳205 a day.' },
+] as const
+
 const FEATURES = [
-  { icon: Mic, text: 'Type or speak in English, বাংলা or Banglish' },
-  { icon: Sparkles, text: 'Know what’s safe to spend after bills and savings' },
-  { icon: ShieldCheck, text: 'Nothing is saved until you confirm it' },
+  { icon: Mic, text: 'No forms — just type or speak' },
+  { icon: Database, text: 'Answers come from your own records' },
+  { icon: MessagesSquare, text: 'Follow-up questions just work' },
 ]
 
 export function AuthLayout({
@@ -38,24 +45,31 @@ export function AuthLayout({
         <div className="relative my-auto max-w-md space-y-8">
           <div className="space-y-3">
             <h2 className="text-4xl leading-tight font-semibold tracking-tight">
-              Your money, in your language.
+              Talk to your money like you talk to a friend.
             </h2>
-            <p className="text-lg text-hero-muted">আপনার টাকার হিসাব, সহজ ভাষায়।</p>
+            <p className="text-lg text-hero-muted">টাকার সাথে কথা বলুন, বন্ধুর মতো।</p>
           </div>
 
-          {/* A tiny demo of the core idea */}
-          <div className="space-y-2.5" aria-label="Example">
-            <p className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-white px-3.5 py-2 text-sm text-hero-to shadow-sm">
-              Ajke 50 taka cha, 120 taka rickshaw
-            </p>
-            <div className="w-fit max-w-[90%] space-y-1.5 rounded-2xl rounded-bl-sm bg-white/12 px-3.5 py-2.5 text-sm ring-1 ring-white/15">
-              <p className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-gold" aria-hidden /> Tea · ৳50 · Food &amp; Drinks
-              </p>
-              <p className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-gold" aria-hidden /> Rickshaw · ৳120 · Transport
-              </p>
-            </div>
+          {/* A tiny demo conversation */}
+          <div className="space-y-2.5" aria-label="Example conversation">
+            {CONVERSATION.map((m, i) =>
+              m.from === 'you' ? (
+                <p
+                  key={i}
+                  className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-white px-3.5 py-2 text-sm text-hero-to shadow-sm"
+                >
+                  {m.text}
+                </p>
+              ) : (
+                <p
+                  key={i}
+                  className="flex w-fit max-w-[90%] items-start gap-2 rounded-2xl rounded-bl-sm bg-white/12 px-3.5 py-2 text-sm ring-1 ring-white/15"
+                >
+                  <MessageSquareText className="mt-0.5 size-4 shrink-0 text-gold" aria-hidden />
+                  {m.text}
+                </p>
+              ),
+            )}
           </div>
 
           <ul className="space-y-3">
@@ -84,7 +98,7 @@ export function AuthLayout({
         <main className="flex flex-1 items-start justify-center px-5 pt-6 pb-16 sm:items-center sm:px-8 sm:pt-0">
           <div className="w-full max-w-sm space-y-6">
             <p className="inline-flex rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground lg:hidden">
-              আপনার টাকার হিসাব, সহজ ভাষায়
+              টাকার সাথে কথা বলুন, বন্ধুর মতো
             </p>
             <div className="space-y-1.5">
               <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
