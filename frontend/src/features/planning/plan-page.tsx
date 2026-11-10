@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { AffordCheck } from '@/features/planning/afford-check'
 import { BillsTab } from '@/features/planning/bills-tab'
 import { BudgetTab } from '@/features/planning/budget-tab'
 import { SafeToSpendCard } from '@/features/planning/safe-to-spend-card'
@@ -17,7 +18,10 @@ export function PlanPage() {
           Your budget, monthly bills and expected income — the app reserves them before telling you what's safe to spend.
         </p>
       </div>
-      <SafeToSpendCard />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <SafeToSpendCard />
+        <AffordCheck />
+      </div>
       <Tabs value={tab} onValueChange={(v) => setParams(v === 'bills' ? { tab: 'bills' } : {}, { replace: true })}>
         <TabsList>
           <TabsTrigger value="budget">Budget</TabsTrigger>

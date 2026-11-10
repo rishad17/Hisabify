@@ -1,11 +1,13 @@
-import { Info, Loader2, Mic, RotateCcw, Send, Sparkles, Square, X } from 'lucide-react'
+import { Info, Loader2, MessageSquareText, Mic, RotateCcw, Send, Sparkles, Square, X } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
-import { useAIMessage, type AIReply } from '@/features/assistant/api'
+import { useAIMessage, type AIReply, type HistoryTurn, type ToolUse } from '@/features/assistant/api'
+import { DataCards } from '@/features/assistant/data-cards'
+import { MiniMarkdown } from '@/features/assistant/mini-markdown'
 import { DraftPreview } from '@/features/assistant/draft-preview'
 import { useTranscribe } from '@/features/voice/api'
 import { isVoiceSupported, MAX_SECONDS, useVoiceRecorder } from '@/features/voice/use-voice-recorder'
@@ -15,8 +17,11 @@ const EXAMPLES = [
   '100 rickshaw, 200 lunch, 50 cha',
   'আজকে ১২০ টাকা বাস ভাড়া',
   'Cash theke bKash e 1000 taka',
-  'Got 5000 tuition fee',
+  'Ei mash e koto khoroch holo?',
+  'Can I buy a 2500 taka keyboard?',
 ]
+
+type ThreadMessage = { role: 'user' | 'assistant'; text: string; tools?: ToolUse[] }
 
 const formatClock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 
@@ -28,6 +33,8 @@ export function QuickEntry() {
   const [text, setText] = useState('')
   const [source, setSource] = useState<'text' | 'voice'>('text')
   const [reply, setReply] = useState<AIReply | null>(null)
+  // Q&A conversation (answers only; recording drafts use the preview below).
+  const [thread, setThread] = useState<ThreadMessage[]>([])
   const ai = useAIMessage()
   const transcribe = useTranscribe()
   const recorder = useVoiceRecorder()
@@ -63,8 +70,17 @@ export function QuickEntry() {
     const message = text.trim()
     if (!message || ai.isPending) return
     setReply(null)
+    const history: HistoryTurn[] = thread.slice(-6).map(({ role, text }) => ({ role, text }))
     try {
-      setReply(await ai.mutateAsync({ text: message, source }))
+      const r = await ai.mutateAsync({ text: message, source, history })
+      if (r.kind === 'answer' && r.answer) {
+        // Questions become a conversation; the box clears for a follow-up.
+        setThread((t) => [...t, { role: 'user', text: message }, { role: 'assistant', text: r.answer!, tools: r.tools_used }])
+        setText('')
+        setSource('text')
+      } else {
+        setReply(r)
+      }
     } catch {
       // error is shown from ai.error below
     }
@@ -96,14 +112,38 @@ export function QuickEntry() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Sparkles className="size-4 text-primary" aria-hidden />
-          Quick entry
+          Ask or record
         </CardTitle>
         <CardDescription>
-          Type or say what you spent or received — English, বাংলা or Banglish. You'll review it before
-          anything is saved.
+          Type or say what you spent — or ask about your money — in English, বাংলা or Banglish. Nothing is
+          saved until you confirm it.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
+        {thread.length > 0 && (
+          <div className="space-y-3" aria-live="polite">
+            {thread.map((m, i) =>
+              m.role === 'user' ? (
+                <p key={i} className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-sm text-primary-foreground">
+                  {m.text}
+                </p>
+              ) : (
+                <div key={i} className="space-y-2">
+                  <div className="flex gap-2">
+                    <MessageSquareText className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+                    <MiniMarkdown text={m.text} />
+                  </div>
+                  {m.tools && m.tools.length > 0 && <div className="pl-6"><DataCards tools={m.tools} /></div>}
+                </div>
+              ),
+            )}
+            <div className="flex justify-end">
+              <Button variant="ghost" size="sm" onClick={() => setThread([])}>
+                Clear conversation
+              </Button>
+            </div>
+          </div>
+        )}
         {recording && (
           <RecordingPanel
             requesting={recorder.state === 'requesting'}
@@ -125,7 +165,7 @@ export function QuickEntry() {
                   if (!e.target.value) setSource('text')
                 }}
                 onKeyDown={onKeyDown}
-                placeholder="e.g. Ajke 100 taka rickshaw vara, 200 taka lunch, ar 50 taka cha"
+                placeholder={thread.length ? 'Ask a follow-up… e.g. “and last month?”' : 'e.g. Ajke 100 taka rickshaw vara, 200 lunch — or “How much did I spend this month?”'}
                 maxLength={500}
                 rows={2}
                 aria-label="Describe your transactions"
@@ -166,7 +206,7 @@ export function QuickEntry() {
             )}
             {ai.isPending && (
               <p className="text-sm text-muted-foreground" role="status">
-                Understanding your message…
+                Thinking…
               </p>
             )}
             {source === 'voice' && text && !busy && !reply && (
@@ -179,7 +219,7 @@ export function QuickEntry() {
                 Voice input needs a secure (https) page and microphone support in your browser.
               </p>
             )}
-            {!busy && !reply && !text && (
+            {!busy && !reply && !text && thread.length === 0 && (
               <div className="flex flex-wrap gap-1.5" aria-label="Examples">
                 {EXAMPLES.map((example) => (
                   <button

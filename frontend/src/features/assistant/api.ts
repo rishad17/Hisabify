@@ -27,16 +27,22 @@ export type Draft = {
   income_total: string
 }
 
+export type ToolUse = { name: string; args: Record<string, unknown>; result: Record<string, unknown> }
+
 export type AIReply = {
-  kind: 'transaction_draft' | 'clarification' | 'unsupported'
+  kind: 'transaction_draft' | 'clarification' | 'unsupported' | 'answer'
   message: string | null
   clarifications: string[]
   draft: Draft | null
+  answer: string | null
+  tools_used: ToolUse[]
 }
+
+export type HistoryTurn = { role: 'user' | 'assistant'; text: string }
 
 export function useAIMessage() {
   return useMutation({
-    mutationFn: (body: { text: string; source?: 'text' | 'voice' }) =>
+    mutationFn: (body: { text: string; source?: 'text' | 'voice'; history?: HistoryTurn[] }) =>
       apiFetch<AIReply>('/api/v1/ai/message', { method: 'POST', json: body, timeoutMs: 45_000 }),
   })
 }

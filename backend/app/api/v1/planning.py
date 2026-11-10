@@ -23,9 +23,11 @@ from app.schemas.planning import (
     PayBillIn,
     ReceiveIn,
     SafeToSpendOut,
+    SimulateIn,
+    SimulationOut,
 )
 from app.schemas.transaction import TransactionOut
-from app.services import ledger, planning
+from app.services import ledger, planning, simulator
 
 budgets = APIRouter()
 bills = APIRouter()
@@ -241,3 +243,13 @@ def safe_to_spend(
 ) -> dict:
     """Commitment-aware: what you can spend after reserving bills, savings and essentials."""
     return planning.safe_to_spend(db, user.id)
+
+
+@plan.post("/simulate", response_model=SimulationOut)
+def simulate(
+    body: SimulateIn,
+    user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    """What-if purchase check. Read-only: nothing is recorded."""
+    return simulator.simulate_purchase(db, user.id, body.amount, body.category_id).__dict__

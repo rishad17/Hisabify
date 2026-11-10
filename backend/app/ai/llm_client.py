@@ -95,35 +95,7 @@ class GeminiClient:
                 "responseSchema": schema,
             },
         }
-        last_error: LLMError | None = None
-        for model in self.models:
-            try:
-                return self._call(model, body)
-            except LLMError as exc:
-                last_error = exc
-                if not exc.retryable:
-                    raise
-                logger.warning("Gemini model %s failed (%s); trying fallback", model, exc)
-        assert last_error is not None
-        raise last_error
-
-    def _call(self, model: str, body: dict[str, Any]) -> LLMResult:
-        start = time.perf_counter()
-        try:
-            response = self._http.post(GEMINI_URL.format(model=model), json=body)
-        except httpx.TimeoutException as exc:
-            raise LLMError(f"{model} timed out", retryable=True) from exc
-        except httpx.HTTPError as exc:
-            raise LLMError(f"Network error calling {model}: {exc}", retryable=True) from exc
-        latency_ms = int((time.perf_counter() - start) * 1000)
-
-        if response.status_code != 200:
-            raise LLMError(
-                f"{model} returned HTTP {response.status_code}",
-                retryable=response.status_code in RETRYABLE_STATUS,
-            )
-
-        payload = response.json()
+        payload, model, latency_ms = self._with_fallback(body)
         try:
             candidate = payload["candidates"][0]
             text = "".join(p.get("text", "") for p in candidate["content"]["parts"])
@@ -133,7 +105,6 @@ class GeminiClient:
             raise LLMError(f"{model} returned no usable JSON (finish: {reason})") from exc
         if not isinstance(data, dict):
             raise LLMError(f"{model} returned JSON that is not an object")
-
         usage = payload.get("usageMetadata", {})
         return LLMResult(
             data=data,
@@ -142,3 +113,96 @@ class GeminiClient:
             tokens_in=usage.get("promptTokenCount"),
             tokens_out=usage.get("candidatesTokenCount"),
         )
+
+    def generate_turn(
+        self,
+        *,
+        system: str,
+        contents: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+        temperature: float = 0.2,
+        model: str | None = None,
+        allow_tools: bool = True,
+    ) -> "TurnResult":
+        """One step of a function-calling conversation.
+
+        The model either asks to call tools (`function_calls`) or answers (`text`).
+        `content` is the model's message exactly as returned — append it to `contents`
+        unchanged (Gemini 3 attaches "thought signatures" that must be sent back).
+        Pass `model` to stay on the model that started the conversation.
+        """
+        body = {
+            "systemInstruction": {"parts": [{"text": system}]},
+            "contents": contents,
+            "tools": [{"functionDeclarations": tools}],
+            # NONE forces a plain-text answer (used on the final round).
+            "toolConfig": {"functionCallingConfig": {"mode": "AUTO" if allow_tools else "NONE"}},
+            "generationConfig": {"temperature": temperature},
+        }
+        payload, used, latency_ms = self._with_fallback(body, only=model)
+        try:
+            content = payload["candidates"][0]["content"]
+            parts = content.get("parts", [])
+        except (KeyError, IndexError, TypeError) as exc:
+            reason = payload.get("candidates", [{}])[0].get("finishReason", "unknown")
+            raise LLMError(f"{used} returned no content (finish: {reason})") from exc
+        calls = [
+            (p["functionCall"].get("name", ""), p["functionCall"].get("args") or {})
+            for p in parts
+            if isinstance(p.get("functionCall"), dict)
+        ]
+        text = "".join(p.get("text", "") for p in parts if not p.get("thought")).strip()
+        usage = payload.get("usageMetadata", {})
+        return TurnResult(
+            content={"role": "model", "parts": parts},
+            function_calls=calls,
+            text=text,
+            model=used,
+            latency_ms=latency_ms,
+            tokens_in=usage.get("promptTokenCount"),
+            tokens_out=usage.get("candidatesTokenCount"),
+        )
+
+    def _with_fallback(
+        self, body: dict[str, Any], only: str | None = None
+    ) -> tuple[dict[str, Any], str, int]:
+        models = [only] if only else self.models
+        last_error: LLMError | None = None
+        for model in models:
+            try:
+                payload, latency_ms = self._post(model, body)
+                return payload, model, latency_ms
+            except LLMError as exc:
+                last_error = exc
+                if not exc.retryable:
+                    raise
+                logger.warning("Gemini model %s failed (%s); trying fallback", model, exc)
+        assert last_error is not None
+        raise last_error
+
+    def _post(self, model: str, body: dict[str, Any]) -> tuple[dict[str, Any], int]:
+        start = time.perf_counter()
+        try:
+            response = self._http.post(GEMINI_URL.format(model=model), json=body)
+        except httpx.TimeoutException as exc:
+            raise LLMError(f"{model} timed out", retryable=True) from exc
+        except httpx.HTTPError as exc:
+            raise LLMError(f"Network error calling {model}: {exc}", retryable=True) from exc
+        latency_ms = int((time.perf_counter() - start) * 1000)
+        if response.status_code != 200:
+            raise LLMError(
+                f"{model} returned HTTP {response.status_code}",
+                retryable=response.status_code in RETRYABLE_STATUS,
+            )
+        return response.json(), latency_ms
+
+
+@dataclass
+class TurnResult:
+    content: dict[str, Any]
+    function_calls: list[tuple[str, dict[str, Any]]]
+    text: str
+    model: str
+    latency_ms: int
+    tokens_in: int | None
+    tokens_out: int | None

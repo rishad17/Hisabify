@@ -212,3 +212,32 @@ class SafeToSpendOut(BaseModel):
     has_budget: bool
     confidence: Literal["good", "limited"]
     notes: list[str]
+
+
+# ------------------------------------------------------------------ purchase simulator
+
+
+class SimulateIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    amount: PositiveMoney
+    category_id: uuid.UUID | None = None
+
+
+class SimulationOut(BaseModel):
+    amount: Money
+    verdict: Literal[
+        "affordable", "likely_affordable", "over_budget", "cuts_into_savings", "not_affordable"
+    ]
+    available_before: Money
+    available_after: Money
+    savings_target_left: Money
+    savings_shortfall: Money
+    commitments_shortfall: Money
+    category_name: str | None
+    category_remaining_after: Money | None
+    flexible_budget_after: Money | None
+    affordable_after_expected_income: bool | None
+    max_without_touching_savings: Money
+    reasons: list[str]
+    alternatives: list[str]
