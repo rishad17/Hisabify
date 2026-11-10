@@ -33,7 +33,7 @@ UNSUPPORTED_MESSAGES = {
         "Questions about your spending are coming soon. For now, check the Dashboard and "
         "Transactions pages."
     ),
-    "budget": "Budget planning is coming soon.",
+    "budget": "To plan a budget, open Plan → Budget and describe your month there.",
 }
 OTHER_MESSAGE = (
     'I can record expenses, income and transfers. Try: "Ajke 50 taka cha" or '

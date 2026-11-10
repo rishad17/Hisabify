@@ -3,11 +3,13 @@ from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from app.ai import service
+from app.ai.budget_ai import plan_from_text
 from app.ai.llm_client import LLMClient
+from app.api.v1.transactions import parse_month
 from app.core.db import get_db
 from app.core.errors import AppError
 from app.core.security import CurrentUser, get_current_user
-from app.schemas.ai import AIMessageIn, AIMessageOut, TranscriptOut
+from app.schemas.ai import AIBudgetIn, AIBudgetOut, AIMessageIn, AIMessageOut, TranscriptOut
 from app.voice.audio_check import InvalidWav, is_probably_silent
 from app.voice.transcriber import NoSpeechError, Transcriber, TranscriptionError
 
@@ -112,3 +114,20 @@ async def transcribe(
         del data  # drop the audio as soon as possible
 
     return TranscriptOut(text=result.text, language=result.language, provider=result.provider)
+
+
+@router.post("/budget", response_model=AIBudgetOut)
+def ai_budget(
+    body: AIBudgetIn,
+    user: CurrentUser = Depends(rate_limit),
+    db: Session = Depends(get_db),
+    llm: LLMClient = Depends(get_llm),
+) -> dict:
+    """ "I have 20,000 this month, rent 5,000, save 3,000" → calculated budget DRAFT.
+
+    The AI only extracts the numbers you said; the budget engine does all the maths.
+    Nothing is saved until PUT /budgets/{month}.
+    """
+    month = parse_month(body.month)
+    assert month is not None
+    return plan_from_text(db, user.id, body.text, llm=llm, month=month)
