@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
 
 import { ThemeProvider } from '@/components/theme-provider'
+import { AuthProvider } from '@/features/auth/auth-provider'
 import { ApiError } from '@/lib/api'
 
 function makeQueryClient() {
@@ -22,7 +23,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
   const [queryClient] = useState(makeQueryClient)
   return (
     <ThemeProvider>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>{children}</AuthProvider>
+      </QueryClientProvider>
     </ThemeProvider>
   )
 }

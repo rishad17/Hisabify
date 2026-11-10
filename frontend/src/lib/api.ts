@@ -1,4 +1,5 @@
 import { config } from '@/lib/config'
+import { supabase } from '@/lib/supabase'
 
 /**
  * Error shape returned by the backend for every failed request:
@@ -25,13 +26,20 @@ type RequestOptions = Omit<RequestInit, 'body'> & {
   timeoutMs?: number
 }
 
+async function authHeader(): Promise<Record<string, string>> {
+  // getSession() returns the cached session and refreshes the token if it is about to expire.
+  const { data } = await supabase.auth.getSession()
+  const token = data.session?.access_token
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 /**
- * Thin fetch wrapper used by every feature.
- * Phase 1 will add the Supabase access token as an Authorization header here,
+ * Thin fetch wrapper used by every feature. It attaches the Supabase access token,
  * so no component ever has to deal with auth headers itself.
  */
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { json, rawBody, timeoutMs = 15_000, headers, ...init } = options
+  const auth = await authHeader()
 
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
@@ -43,6 +51,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
       signal: init.signal ?? controller.signal,
       headers: {
         Accept: 'application/json',
+        ...auth,
         ...(json !== undefined ? { 'Content-Type': 'application/json' } : {}),
         ...headers,
       },
@@ -64,6 +73,11 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   if (response.status === 204) return undefined as T
 
   const body: unknown = await response.json().catch(() => null)
+
+  if (response.status === 401 && auth.Authorization) {
+    // Our session was rejected (expired/revoked). Signing out sends the user to /login.
+    await supabase.auth.signOut({ scope: 'local' })
+  }
 
   if (!response.ok) {
     const error = (body as { error?: { code?: string; message?: string; details?: unknown } } | null)
