@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { QuickEntry } from '@/features/assistant/quick-entry'
+import { CategoryBreakdownChart, DailySpendingChart } from '@/features/insights/charts'
 import { SafeToSpendCard } from '@/features/planning/safe-to-spend-card'
 import { useOverview, useRecentTransactions, useWallets } from '@/features/ledger/api'
 import { Money } from '@/features/ledger/amount'
@@ -86,6 +87,23 @@ export function DashboardPage() {
         />
       </section>
       {overview.isError && <p className="text-sm text-destructive">{overview.error.message}</p>}
+
+      <section aria-labelledby="charts-heading" className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 id="charts-heading" className="font-semibold">
+            This month
+          </h2>
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/insights">
+              All insights <ChevronRight aria-hidden />
+            </Link>
+          </Button>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <CategoryBreakdownChart month={month} />
+          <DailySpendingChart month={month} />
+        </div>
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         {/* Recent transactions */}

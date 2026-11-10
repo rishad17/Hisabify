@@ -177,15 +177,20 @@ def compare(db: Session, user_id: uuid.UUID, month: date) -> dict:
     items.sort(key=lambda i: (-max(i["current"], i["previous"]), i["category"]["name"]))
     total_cur = sum(cur.values(), ZERO)
     total_prev = sum(prev.values(), ZERO)
-    fmt = "%d %b"
+
+    def day_label(d: date) -> str:
+        return f"{d.day} {d:%b}"  # "1 Nov" (portable; %-d isn't supported on Windows)
+
     return {
         "month": start.strftime("%Y-%m"),
         "partial": partial,
         "current_label": (
-            f"{start:{fmt}}–{cur_end - timedelta(days=1):{fmt}}" if partial else f"{start:%B %Y}"
+            f"{day_label(start)}–{day_label(cur_end - timedelta(days=1))}"
+            if partial
+            else f"{start:%B %Y}"
         ),
         "previous_label": (
-            f"{prev_start:{fmt}}–{prev_end - timedelta(days=1):{fmt}}"
+            f"{day_label(prev_start)}–{day_label(prev_end - timedelta(days=1))}"
             if partial
             else f"{prev_start:%B %Y}"
         ),

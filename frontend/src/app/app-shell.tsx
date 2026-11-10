@@ -1,5 +1,6 @@
 import {
   AlertCircle,
+  ChartColumn,
   LayoutDashboard,
   ListOrdered,
   Loader2,
@@ -19,12 +20,14 @@ import { useMe } from '@/features/me/api'
 import { AddTransactionButton } from '@/features/ledger/add-transaction-button'
 import { cn } from '@/lib/utils'
 
-const NAV: { to: string; label: string; icon: LucideIcon }[] = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/transactions', label: 'Transactions', icon: ListOrdered },
-  { to: '/plan', label: 'Plan', icon: Target },
-  { to: '/wallets', label: 'Wallets', icon: WalletCards },
-  { to: '/settings', label: 'Settings', icon: Settings },
+const NAV: { to: string; label: string; icon: LucideIcon; mobile: boolean }[] = [
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard, mobile: true },
+  { to: '/transactions', label: 'Transactions', icon: ListOrdered, mobile: true },
+  { to: '/plan', label: 'Plan', icon: Target, mobile: true },
+  { to: '/insights', label: 'Insights', icon: ChartColumn, mobile: true },
+  { to: '/wallets', label: 'Wallets', icon: WalletCards, mobile: true },
+  // On phones Settings lives behind the gear icon in the header (5 tabs max).
+  { to: '/settings', label: 'Settings', icon: Settings, mobile: false },
 ]
 
 /** Layout for signed-in pages: top bar + nav (bottom tab bar on phones). */
@@ -60,6 +63,11 @@ export function AppShell() {
           </div>
           <div className="flex items-center gap-2">
             <span className="hidden max-w-48 truncate text-sm text-muted-foreground lg:inline">{user?.email}</span>
+            <Button asChild variant="ghost" size="icon" className="md:hidden" aria-label="Settings">
+              <Link to="/settings">
+                <Settings aria-hidden />
+              </Link>
+            </Button>
             <ThemeToggle />
             <Button variant="ghost" size="sm" onClick={signOut}>
               <LogOut aria-hidden />
@@ -80,7 +88,7 @@ export function AppShell() {
         aria-label="Main"
         className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
       >
-        {NAV.map((item) => (
+        {NAV.filter((item) => item.mobile).map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

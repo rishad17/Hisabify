@@ -129,3 +129,22 @@
     @apply font-sans;
     }
 }
+/*
+ * Chart tokens (data-viz palette, validated for colour-blind separation in both modes:
+ * blue/orange adjacent CVD ΔE 24.7 light / 26.8 dark). Dark values are their own steps,
+ * not an automatic inversion. Text in charts uses text tokens, never series colours.
+ */
+:root {
+  --viz-series-1: #2a78d6; /* blue: current / primary series */
+  --viz-series-2: #eb6834; /* orange: second series */
+  --viz-muted: #8a8984; /* previous period, budget (de-emphasis), 3.4:1 on surface */
+  --viz-grid: #e4e3df; /* hairline gridlines, recessive */
+  --viz-cursor: rgb(0 0 0 / 0.04);
+}
+.dark {
+  --viz-series-1: #3987e5;
+  --viz-series-2: #d95926;
+  --viz-muted: #9a9993;
+  --viz-grid: #3a3a37;
+  --viz-cursor: rgb(255 255 255 / 0.05);
+}

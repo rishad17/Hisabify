@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatTaka, isNegative, parseAmountInput, sumAmounts, toAsciiDigits } from '@/lib/money'
+import { compactTaka, formatTaka, isNegative, parseAmountInput, sumAmounts, toAsciiDigits } from '@/lib/money'
 
 describe('formatTaka', () => {
   it.each([
@@ -66,5 +66,20 @@ describe('helpers', () => {
     expect(isNegative('-1.00')).toBe(true)
     expect(isNegative('-0.00')).toBe(false)
     expect(isNegative('5.00')).toBe(false)
+  })
+})
+
+describe('compactTaka (axis labels)', () => {
+  it.each([
+    [0, '৳0'],
+    [950, '৳950'],
+    [2000, '৳2,000'],
+    [15000, '৳15K'],
+    [12500, '৳12.5K'],
+    [120000, '৳1.2L'],
+    [25000000, '৳2.5Cr'],
+    [-3000, '−৳3,000'],
+  ])('%d → %s', (n, s) => {
+    expect(compactTaka(n)).toBe(s)
   })
 })
