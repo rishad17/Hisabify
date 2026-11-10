@@ -1,15 +1,8 @@
-import { Database, MessageSquareText, MessagesSquare, Mic } from 'lucide-react'
+import { Database, MessagesSquare, Mic } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { Logo, LogoMark } from '@/components/brand'
 import { ThemeToggle } from '@/components/theme-toggle'
-
-const CONVERSATION = [
-  { from: 'you', text: 'Amar koto taka ache?' },
-  { from: 'app', text: '৳11,990 across Cash and bKash.' },
-  { from: 'you', text: 'Ar ei shoptahe koto khoroch korte pari?' },
-  { from: 'app', text: 'About ৳615 — ৳205 a day.' },
-] as const
 
 const FEATURES = [
   { icon: Mic, text: 'No forms — just type or speak' },
@@ -43,34 +36,9 @@ export function AuthLayout({
         </div>
 
         <div className="relative my-auto max-w-md space-y-8">
-          <div className="space-y-3">
-            <h2 className="text-4xl leading-tight font-semibold tracking-tight">
-              Talk to your money like you talk to a friend.
-            </h2>
-            <p className="text-lg text-hero-muted">টাকার সাথে কথা বলুন, বন্ধুর মতো।</p>
-          </div>
-
-          {/* A tiny demo conversation */}
-          <div className="space-y-2.5" aria-label="Example conversation">
-            {CONVERSATION.map((m, i) =>
-              m.from === 'you' ? (
-                <p
-                  key={i}
-                  className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-white px-3.5 py-2 text-sm text-hero-to shadow-sm"
-                >
-                  {m.text}
-                </p>
-              ) : (
-                <p
-                  key={i}
-                  className="flex w-fit max-w-[90%] items-start gap-2 rounded-2xl rounded-bl-sm bg-white/12 px-3.5 py-2 text-sm ring-1 ring-white/15"
-                >
-                  <MessageSquareText className="mt-0.5 size-4 shrink-0 text-gold" aria-hidden />
-                  {m.text}
-                </p>
-              ),
-            )}
-          </div>
+          <h2 className="text-4xl leading-tight font-semibold tracking-tight">
+            Talk to your money like you talk to a friend.
+          </h2>
 
           <ul className="space-y-3">
             {FEATURES.map((f) => (
@@ -97,9 +65,6 @@ export function AuthLayout({
         </header>
         <main className="flex flex-1 items-start justify-center px-5 pt-6 pb-16 sm:items-center sm:px-8 sm:pt-0">
           <div className="w-full max-w-sm space-y-6">
-            <p className="inline-flex rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground lg:hidden">
-              টাকার সাথে কথা বলুন, বন্ধুর মতো
-            </p>
             <div className="space-y-1.5">
               <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
               <p className="text-sm text-muted-foreground">{description}</p>
