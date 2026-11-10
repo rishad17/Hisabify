@@ -1,5 +1,5 @@
 import uuid
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -241,3 +241,70 @@ class SimulationOut(BaseModel):
     max_without_touching_savings: Money
     reasons: list[str]
     alternatives: list[str]
+
+
+# ------------------------------------------------------------------ forecast & alerts
+
+
+class ForecastCategory(BaseModel):
+    category: CategoryBrief
+    budget: Money
+    spent: Money
+    projected: Money
+    projected_remaining: Money
+
+
+class ForecastPoint(BaseModel):
+    date: date
+    actual: Money | None
+    projected: Money | None
+
+
+class ForecastOut(BaseModel):
+    month: str
+    spent_so_far: Money
+    typical_daily: Money
+    remaining_days: int
+    unpaid_bills: Money
+    projected: Money
+    low: Money
+    high: Money
+    budget_total: Money | None
+    planned_income: Money | None
+    projected_vs_plan: Money | None  # planned income − savings − projected (negative = short)
+    confidence: Literal["low", "medium", "good"]
+    history_days: int
+    categories: list[ForecastCategory]
+    series: list[ForecastPoint]
+    explanation: list[str]
+
+
+class AlertOut(BaseModel):
+    category: CategoryBrief
+    kind: Literal["over", "nearly_used", "projected_over"]
+    severity: Literal["warning", "critical"]
+    message: str
+
+
+class AdjustmentChange(BaseModel):
+    category_id: str
+    category_name: str
+    old: str
+    new: str
+
+
+class AdjustmentOut(BaseModel):
+    id: uuid.UUID
+    proposed_by: Literal["ai", "system", "user"]
+    status: Literal["proposed", "approved", "rejected"]
+    changes: list[AdjustmentChange]
+    reason: str | None
+    created_at: datetime
+    decided_at: datetime | None
+
+
+class SuggestOut(BaseModel):
+    """Either a proposal to approve/reject, or just a message (nothing to change)."""
+
+    suggestion: AdjustmentOut | None
+    message: str | None

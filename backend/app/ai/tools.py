@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from app.ai.drafts import parse_amount
 from app.core.errors import AppError
 from app.models import Category, Transaction, Wallet
-from app.services import analytics, ledger, planning, simulator
+from app.services import analytics, forecast, ledger, planning, simulator
 
 PERIODS = [
     "today",
@@ -245,6 +245,18 @@ def simulate_purchase(
     return {**sim.__dict__, "note": "Simulation only — nothing was recorded."}
 
 
+def get_forecast(ctx: ToolContext, **_: Any) -> dict:
+    data = forecast.month_forecast(ctx.db, ctx.user_id)
+    data.pop("series", None)  # the day-by-day chart data isn't useful to the model
+    data["categories"] = [
+        {"category": c["category"]["name"], "budget": c["budget"], "projected": c["projected"]}
+        for c in data["categories"]
+    ]
+    data["alerts"] = [a["message"] for a in forecast.budget_alerts(ctx.db, ctx.user_id)]
+    data["note"] = "Estimate only: typical daily spending × days left + unpaid bills."
+    return data
+
+
 def get_bills(ctx: ToolContext, **_: Any) -> dict:
     month = _today(ctx).replace(day=1)
     bills = planning.list_bills(ctx.db, ctx.user_id, month)
@@ -398,6 +410,15 @@ TOOLS: dict[str, Tool] = {
                 "category": _CATEGORY,
             },
             ["amount"],
+        ),
+    ),
+    "get_forecast": Tool(
+        get_forecast,
+        _decl(
+            "get_forecast",
+            "Projected month-end spending (estimate with low/high range and confidence), "
+            "per-category projections vs budget, and budget warnings. Use for 'how much will "
+            "I spend by month end', 'month end e koto khoroch hobe', 'am I on track'.",
         ),
     ),
     "get_bills": Tool(

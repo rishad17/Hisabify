@@ -206,9 +206,15 @@ def save_budget(
         seen.add(cid)
 
     budget = db.scalar(select(Budget).where(Budget.user_id == user_id, Budget.month == month))
+    previous: dict[uuid.UUID, Decimal] | None = None
     if budget is None:
         budget = Budget(user_id=user_id, month=month)
         db.add(budget)
+    else:
+        previous = {
+            i.category_id: i.amount
+            for i in db.scalars(select(BudgetItem).where(BudgetItem.budget_id == budget.id))
+        }
     budget.planned_income = planned_income
     budget.savings_target = savings_target
     budget.status = "active"
@@ -220,6 +226,10 @@ def save_budget(
         for cid, amount in items
         if amount > 0
     )
+    if previous is not None:  # editing an existing budget → keep a history entry
+        from app.services.adjustments import record_manual_edit
+
+        record_manual_edit(db, budget, previous, {c: a for c, a in items if a > 0})
     db.commit()
     return budget
 

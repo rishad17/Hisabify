@@ -59,13 +59,17 @@ class BudgetItem(Base):
     amount: Mapped[Decimal] = mapped_column(MONEY)
 
 
+# "system" = deterministic suggestion engine, "user" = manual edit, "ai" = reserved (LLM).
+PROPOSERS = ("ai", "system", "user")
+
+
 class BudgetAdjustment(Base):
     """A proposed change to an active budget. Applied ONLY after the user approves it;
     approved/rejected rows remain as history."""
 
     __tablename__ = "budget_adjustments"
     __table_args__ = (
-        CheckConstraint(in_list("proposed_by", ("ai", "user")), name="proposed_by"),
+        CheckConstraint(in_list("proposed_by", PROPOSERS), name="proposed_by"),
         CheckConstraint(in_list("status", ("proposed", "approved", "rejected")), name="status"),
     )
 
@@ -73,7 +77,7 @@ class BudgetAdjustment(Base):
     budget_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("budgets.id", ondelete="CASCADE"), index=True
     )
-    proposed_by: Mapped[str] = mapped_column(String(4))
+    proposed_by: Mapped[str] = mapped_column(String(10))
     # [{"category_id": "...", "old": "4000.00", "new": "3500.00"}, ...]
     changes: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)
     reason: Mapped[str | None] = mapped_column(Text)
