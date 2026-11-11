@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router'
 
+import { PageHeader } from '@/components/brand'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AffordCheck } from '@/features/planning/afford-check'
 import { BillsTab } from '@/features/planning/bills-tab'
@@ -11,13 +12,11 @@ export function PlanPage() {
   const tab = params.get('tab') === 'bills' ? 'bills' : 'budget'
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">Plan</h1>
-        <p className="text-sm text-muted-foreground">
-          Your budget, monthly bills and expected income — the app reserves them before telling you what's safe to spend.
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Plan"
+        description="Your budget, monthly bills and expected income — the app reserves them before telling you what's safe to spend."
+      />
       <div className="grid gap-4 lg:grid-cols-2">
         <SafeToSpendCard />
         <AffordCheck />
@@ -27,10 +26,10 @@ export function PlanPage() {
           <TabsTrigger value="budget">Budget</TabsTrigger>
           <TabsTrigger value="bills">Bills &amp; income</TabsTrigger>
         </TabsList>
-        <TabsContent value="budget" className="pt-3">
+        <TabsContent value="budget" className="pt-4">
           <BudgetTab />
         </TabsContent>
-        <TabsContent value="bills" className="pt-3">
+        <TabsContent value="bills" className="pt-4">
           <BillsTab />
         </TabsContent>
       </Tabs>

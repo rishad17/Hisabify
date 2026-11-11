@@ -14,7 +14,7 @@ export function RouteError() {
 
   return (
     <div className="flex min-h-[60svh] flex-col items-center justify-center gap-4 px-4 text-center" role="alert">
-      <AlertTriangle className="size-8 text-amber-600 dark:text-amber-400" aria-hidden />
+      <AlertTriangle className="size-8 text-warning" aria-hidden />
       <div className="space-y-1">
         <h1 className="text-xl font-semibold">
           {chunkFailed ? 'A new version is available' : status === 404 ? 'Page not found' : 'Something went wrong'}

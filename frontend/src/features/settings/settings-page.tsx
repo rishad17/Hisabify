@@ -41,7 +41,7 @@ export function SettingsPage() {
   return (
     <div className="space-y-6">
       <section className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">Settings</h1>
+        <h1 className="text-[26px] leading-tight font-semibold tracking-[-0.02em] sm:text-[30px]">Settings</h1>
         <p className="text-sm text-muted-foreground">Signed in as {me.data.email ?? name}</p>
       </section>
 

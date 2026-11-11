@@ -20,10 +20,10 @@ export type Simulation = {
 
 // Status = icon + label + colour (never colour alone).
 const VERDICT = {
-  affordable: { label: 'Affordable', icon: CircleCheck, tone: 'text-emerald-700 dark:text-emerald-400 border-emerald-600/30 bg-emerald-500/5' },
-  likely_affordable: { label: 'Looks affordable (estimate)', icon: Info, tone: 'text-emerald-700 dark:text-emerald-400 border-emerald-600/30 bg-emerald-500/5' },
-  over_budget: { label: 'Affordable, but over budget', icon: AlertTriangle, tone: 'text-amber-700 dark:text-amber-400 border-amber-500/40 bg-amber-500/5' },
-  cuts_into_savings: { label: 'Cuts into your savings', icon: PiggyBank, tone: 'text-amber-700 dark:text-amber-400 border-amber-500/40 bg-amber-500/5' },
+  affordable: { label: 'Affordable', icon: CircleCheck, tone: 'text-success border-success/30 bg-success/5' },
+  likely_affordable: { label: 'Looks affordable (estimate)', icon: Info, tone: 'text-success border-success/30 bg-success/5' },
+  over_budget: { label: 'Affordable, but over budget', icon: AlertTriangle, tone: 'text-warning border-warning/40 bg-warning/5' },
+  cuts_into_savings: { label: 'Cuts into your savings', icon: PiggyBank, tone: 'text-warning border-warning/40 bg-warning/5' },
   not_affordable: { label: 'Not affordable this month', icon: CircleX, tone: 'text-destructive border-destructive/40 bg-destructive/5' },
 } as const
 

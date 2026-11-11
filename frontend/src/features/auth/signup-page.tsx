@@ -6,6 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { PasswordInput } from '@/components/password-input'
 import { AuthLayout } from '@/features/auth/auth-layout'
 import { friendlyAuthError } from '@/features/auth/errors'
 import { supabase } from '@/lib/supabase'
@@ -63,13 +64,13 @@ export function SignupPage() {
       footer={
         <>
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-foreground underline underline-offset-4">
+          <Link to="/login" className="font-medium text-primary underline-offset-4 hover:underline">
             Sign in
           </Link>
         </>
       }
     >
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
+      <form onSubmit={onSubmit} className="space-y-5" noValidate>
         {error && (
           <Alert variant="destructive">
             <AlertCircle aria-hidden />
@@ -81,6 +82,8 @@ export function SignupPage() {
           <Input
             id="email"
             type="email"
+            inputMode="email"
+            placeholder="you@example.com"
             autoComplete="email"
             required
             value={email}
@@ -89,9 +92,8 @@ export function SignupPage() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="new-password"
             required
             minLength={MIN_PASSWORD}
@@ -109,6 +111,7 @@ export function SignupPage() {
         </div>
         <Button
           type="submit"
+          size="lg"
           className="w-full"
           disabled={submitting || !email || password.length < MIN_PASSWORD}
         >

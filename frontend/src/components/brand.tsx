@@ -36,16 +36,20 @@ export function PageHeader({
   title,
   description,
   actions,
+  eyebrow,
 }: {
   title: ReactNode
   description?: ReactNode
   actions?: ReactNode
+  /** Small line above the title (e.g. today's date). */
+  eyebrow?: ReactNode
 }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-3">
-      <div className="min-w-0 space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">{title}</h1>
-        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+      <div className="min-w-0 space-y-1.5">
+        {eyebrow && <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{eyebrow}</p>}
+        <h1 className="text-[26px] leading-tight font-semibold tracking-[-0.02em] sm:text-[30px]">{title}</h1>
+        {description && <p className="max-w-2xl text-sm text-pretty text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>

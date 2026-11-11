@@ -44,21 +44,24 @@ export function AffordCheck() {
   }
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Calculator className="size-4" aria-hidden /> Can I afford it?
+        <CardTitle className="flex items-center gap-2">
+          <span className="flex size-7 items-center justify-center rounded-lg bg-accent text-primary">
+            <Calculator className="size-4" aria-hidden />
+          </span>
+          Can I afford it?
         </CardTitle>
         <CardDescription>Check a purchase against your bills, savings and budget — without recording anything.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <form onSubmit={submit} className="flex flex-wrap gap-2" noValidate>
-          <div className="relative w-36">
-            <span className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-sm text-muted-foreground">৳</span>
-            <Input aria-label="Price" inputMode="decimal" placeholder="2500" value={amount} onChange={(e) => setAmount(e.target.value)} className="pl-6" />
+      <CardContent className="flex flex-1 flex-col gap-3">
+        <form onSubmit={submit} className="grid gap-2 sm:grid-cols-[9rem_minmax(0,1fr)_auto]" noValidate>
+          <div className="relative">
+            <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">৳</span>
+            <Input aria-label="Price" inputMode="decimal" placeholder="2500" value={amount} onChange={(e) => setAmount(e.target.value)} className="num pl-7" />
           </div>
           <Select value={categoryId} onValueChange={setCategoryId}>
-            <SelectTrigger className="w-48" aria-label="Category (optional)">
+            <SelectTrigger className="w-full" aria-label="Category (optional)">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -73,7 +76,17 @@ export function AffordCheck() {
           </Button>
         </form>
         {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
-        {simulate.data && <SimulationResult sim={simulate.data} />}
+        {simulate.data ? (
+          <div className="animate-in duration-300 fade-in-0 slide-in-from-bottom-1">
+            <SimulationResult sim={simulate.data} />
+          </div>
+        ) : (
+          !error && (
+            <p className="flex flex-1 items-center justify-center rounded-lg border border-dashed bg-surface-subtle px-4 py-6 text-center text-sm text-muted-foreground">
+              Enter a price to see if it fits after your bills, savings and budget.
+            </p>
+          )
+        )}
       </CardContent>
     </Card>
   )

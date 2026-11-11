@@ -26,24 +26,31 @@ export function SafeToSpendCard() {
     s.flexible_budget_left !== null && s.recommended === s.flexible_budget_left && s.recommended !== s.available
 
   return (
-    <Card className="border-primary/30">
+    <Card className="h-full">
       <CardHeader className="pb-0">
         <CardDescription className="flex items-center justify-between gap-2">
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck className="size-4 text-primary" aria-hidden /> Safe to spend this month
+          <span className="flex items-center gap-2 font-medium text-foreground">
+            <span className="flex size-7 items-center justify-center rounded-lg bg-accent text-primary">
+              <ShieldCheck className="size-4" aria-hidden />
+            </span>
+            Safe to spend
           </span>
           <Badge variant={s.confidence === 'good' ? 'secondary' : 'outline'}>
             {s.confidence === 'good' ? 'Commitments reserved' : 'Estimate — limited info'}
           </Badge>
         </CardDescription>
-        <CardTitle className="flex flex-wrap items-baseline gap-x-3 gap-y-1 pt-1">
-          <span className="text-3xl tabular-nums sm:text-4xl">{formatTaka(s.recommended, { trimZeroDecimals: true })}</span>
-          <span className="text-sm font-normal text-muted-foreground">
-            ≈ {formatTaka(s.per_day, { trimZeroDecimals: true })}/day for {s.days_left} day{s.days_left === 1 ? '' : 's'}
+        <CardTitle className="pt-2">
+          <span className="num block text-[34px] leading-none font-semibold tracking-tight sm:text-4xl">
+            {formatTaka(s.recommended, { trimZeroDecimals: true })}
+          </span>
+          <span className="mt-2 block text-sm font-normal text-muted-foreground">
+            about <span className="num font-medium text-foreground">{formatTaka(s.per_day, { trimZeroDecimals: true })}</span> a
+            day for the next {s.days_left} day{s.days_left === 1 ? '' : 's'}
           </span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="flex flex-1 flex-col gap-3">
+        <ReserveBar s={s} />
         {limitedByBudget && (
           <p className="text-sm text-muted-foreground">
             Limited by your budget: your money allows {formatTaka(s.available, { trimZeroDecimals: true })}, but
@@ -51,13 +58,14 @@ export function SafeToSpendCard() {
           </p>
         )}
         {s.expected_income !== '0.00' && (
-          <p className="text-sm">
-            <span className="text-muted-foreground">If expected income ({formatTaka(s.expected_income, { trimZeroDecimals: true })}) arrives: </span>
-            <Money value={s.available_if_expected_arrives} className="font-medium" /> available. Not counted until received.
+          <p className="text-sm text-muted-foreground">
+            If expected income ({formatTaka(s.expected_income, { trimZeroDecimals: true })}) arrives:{' '}
+            <Money value={s.available_if_expected_arrives} className="font-medium text-foreground" /> available. Not
+            counted until received.
           </p>
         )}
         {s.notes.map((note) => (
-          <p key={note} className="flex items-start gap-1.5 text-sm text-amber-700 dark:text-amber-400">
+          <p key={note} className="flex items-start gap-1.5 text-sm text-warning">
             <Info className="mt-0.5 size-4 shrink-0" aria-hidden /> {note}
           </p>
         ))}
@@ -65,16 +73,16 @@ export function SafeToSpendCard() {
         <Button
           variant="ghost"
           size="sm"
-          className="-ml-2"
+          className="-ml-2 mt-auto self-start text-muted-foreground"
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
           aria-controls="safe-breakdown"
         >
-          <ChevronDown className={open ? 'rotate-180 transition-transform' : 'transition-transform'} aria-hidden />
+          <ChevronDown className={open ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'} aria-hidden />
           How is this calculated?
         </Button>
         {open && (
-          <dl id="safe-breakdown" className="space-y-1.5 rounded-lg bg-muted/60 p-3 text-sm">
+          <dl id="safe-breakdown" className="animate-in space-y-1.5 rounded-lg border bg-surface-subtle p-3 text-sm duration-200 fade-in-0 slide-in-from-top-1">
             <Row label="Money in your wallets (excl. savings wallets)" value={s.spendable_balance} />
             <Row label={`Unpaid bills (${s.unpaid_bill_count})`} value={s.unpaid_bills} minus />
             <Row label="Savings still to set aside" value={s.savings_to_reserve} minus />
@@ -104,10 +112,56 @@ function Row({ label, value, minus, strong }: { label: string; value: string; mi
   return (
     <div className={`flex justify-between gap-3 ${strong ? 'font-semibold' : ''}`}>
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className={`tabular-nums ${isNegative(value) ? 'text-destructive' : ''}`}>
+      <dd className={`num ${isNegative(value) ? 'text-destructive' : ''}`}>
         {minus && value !== '0.00' ? '− ' : ''}
         {formatTaka(value)}
       </dd>
+    </div>
+  )
+}
+
+type SafeToSpendData = NonNullable<ReturnType<typeof useSafeToSpend>['data']>
+
+/**
+ * Where the spendable money goes, as one bar: safe to spend vs. what's reserved.
+ * Display only — every amount comes from the backend; widths are just proportions.
+ */
+function ReserveBar({ s }: { s: SafeToSpendData }) {
+  const total = Number(s.spendable_balance)
+  const parts = [
+    { key: 'safe', label: 'Safe to spend', value: s.recommended, color: 'bg-primary' },
+    { key: 'bills', label: 'Bills', value: s.unpaid_bills, color: 'bg-warning' },
+    { key: 'savings', label: 'Savings', value: s.savings_to_reserve, color: 'bg-[var(--viz-series-1)]' },
+    { key: 'essentials', label: 'Essentials', value: s.essentials_to_reserve, color: 'bg-foreground/30' },
+  ].filter((p) => Number(p.value) > 0)
+  if (!(total > 0) || parts.length < 2) return null
+
+  return (
+    <div className="space-y-2.5 pt-1">
+      <div
+        className="flex h-2 w-full gap-0.5 overflow-hidden rounded-full bg-muted"
+        role="img"
+        aria-label={`Of ${formatTaka(s.spendable_balance)} in your wallets: ${parts
+          .map((p) => `${p.label} ${formatTaka(p.value, { trimZeroDecimals: true })}`)
+          .join(', ')}`}
+      >
+        {parts.map((p) => (
+          <span
+            key={p.key}
+            className={`${p.color} h-full first:rounded-l-full last:rounded-r-full`}
+            style={{ width: `${Math.max(2, (Number(p.value) / total) * 100)}%` }}
+          />
+        ))}
+      </div>
+      <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground" aria-hidden>
+        {parts.map((p) => (
+          <li key={p.key} className="flex items-center gap-1.5">
+            <span className={`${p.color} size-2 rounded-full`} />
+            {p.label}
+            <span className="num font-medium text-foreground">{formatTaka(p.value, { trimZeroDecimals: true })}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

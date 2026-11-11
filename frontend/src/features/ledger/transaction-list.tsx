@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Ellipsis, Mic, Pencil, Scale, Trash2, Type } from 'lucide-react'
+import { ArrowLeftRight, Ellipsis, Mic, Pencil, Scale, Sparkles, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -25,7 +25,8 @@ import { TransactionAmount } from '@/features/ledger/amount'
 import { TransactionFormDialog } from '@/features/ledger/transaction-form-dialog'
 import { ApiError } from '@/lib/api'
 import { formatDayLabel } from '@/lib/dates'
-import { formatTaka } from '@/lib/money'
+import { formatTaka, sumAmounts } from '@/lib/money'
+import { cn } from '@/lib/utils'
 
 function title(tx: Transaction): string {
   if (tx.description) return tx.description
@@ -46,6 +47,21 @@ function RowIcon({ tx }: { tx: Transaction }) {
   if (tx.type === 'transfer') return <ArrowLeftRight className={className} aria-hidden />
   if (tx.type === 'adjustment') return <Scale className={className} aria-hidden />
   return <CategoryIcon name={tx.category?.icon ?? null} className={className} />
+}
+
+/** Day label plus that day's total spending (exact, summed as decimal strings). */
+function DayHeader({ day, items }: { day: string; items: Transaction[] }) {
+  const spent = sumAmounts(items.filter((t) => t.type === 'expense').map((t) => t.amount))
+  return (
+    <div className="mb-1.5 flex items-baseline justify-between px-1">
+      <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{formatDayLabel(day)}</h3>
+      {spent !== '0.00' && (
+        <span className="num text-xs text-muted-foreground">
+          Spent {formatTaka(spent, { trimZeroDecimals: true })}
+        </span>
+      )}
+    </div>
+  )
 }
 
 /** Groups transactions by day and renders them with edit/delete actions. */
@@ -78,22 +94,32 @@ export function TransactionList({ items, groupByDay = true }: { items: Transacti
       <div className="space-y-4">
         {groups.map((group, gi) => (
           <section key={`${group.day}-${gi}`} aria-label={formatDayLabel(group.day)}>
-            {groupByDay && (
-              <h3 className="mb-1 px-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                {formatDayLabel(group.day)}
-              </h3>
-            )}
-            <ul className="divide-y overflow-hidden rounded-xl border bg-card shadow-xs">
+            {groupByDay && <DayHeader day={group.day} items={group.items} />}
+            <ul className="divide-y divide-border/70 overflow-hidden rounded-xl bg-card shadow-card ring-1 ring-border dark:ring-white/[0.06]">
               {group.items.map((tx) => (
-                <li key={tx.id} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground">
+                <li
+                  key={tx.id}
+                  className="group/row flex items-center gap-3 px-3.5 py-2.5 transition-colors duration-150 hover:bg-muted/40 sm:px-4"
+                >
+                  <div
+                    className={cn(
+                      'flex size-9 shrink-0 items-center justify-center rounded-lg',
+                      tx.type === 'income'
+                        ? 'bg-accent text-primary'
+                        : 'bg-muted text-foreground/70 dark:bg-white/[0.06]',
+                    )}
+                  >
                     <RowIcon tx={tx} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="flex items-center gap-1.5 truncate text-sm font-medium">
                       {title(tx)}
-                      {tx.source === 'voice' && <Mic className="size-3 text-muted-foreground" aria-label="Added by voice" />}
-                      {tx.source === 'text' && <Type className="size-3 text-muted-foreground" aria-label="Added by AI text" />}
+                      {tx.source === 'voice' && (
+                        <Mic className="size-3 shrink-0 text-muted-foreground" aria-label="Added by voice" />
+                      )}
+                      {tx.source === 'text' && (
+                        <Sparkles className="size-3 shrink-0 text-muted-foreground" aria-label="Added with AI" />
+                      )}
                     </p>
                     <p className="truncate text-xs text-muted-foreground">
                       {subtitle(tx)}
@@ -103,7 +129,12 @@ export function TransactionList({ items, groupByDay = true }: { items: Transacti
                   <TransactionAmount tx={tx} className="text-sm" />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="size-8" aria-label={`Actions for ${title(tx)}`}>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-muted-foreground transition-opacity lg:opacity-0 lg:group-hover/row:opacity-100 lg:focus-visible:opacity-100 lg:data-[state=open]:opacity-100"
+                        aria-label={`Actions for ${title(tx)}`}
+                      >
                         <Ellipsis aria-hidden />
                       </Button>
                     </DropdownMenuTrigger>
