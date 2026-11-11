@@ -1,6 +1,8 @@
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ListFilter, Loader2, ReceiptText, X } from 'lucide-react'
 import { useState } from 'react'
 
+import { PageHeader } from '@/components/brand'
+import { EmptyState } from '@/components/empty-state'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -49,25 +51,26 @@ export function TransactionsPage() {
   const filtered = type !== ALL || walletId !== ALL || categoryId !== ALL
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">Transactions</h1>
-        <AddTransactionButton className="hidden sm:inline-flex lg:hidden" />
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Transactions"
+        description="Everything you've recorded, by day. Edit or delete any entry from its ⋯ menu."
+        actions={<AddTransactionButton className="hidden sm:inline-flex lg:hidden" />}
+      />
 
       {/* Month switcher + month totals */}
       <Card className="py-3">
-        <CardContent className="flex flex-wrap items-center justify-between gap-3 px-3">
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Previous month">
+        <CardContent className="flex flex-wrap items-center justify-between gap-4 px-3 sm:px-4">
+          <div className="inline-flex items-center gap-0.5 rounded-lg border bg-surface-subtle p-0.5">
+            <Button variant="ghost" size="icon-sm" onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Previous month">
               <ChevronLeft aria-hidden />
             </Button>
-            <span className="min-w-36 text-center font-medium" aria-live="polite">
+            <span className="min-w-32 text-center text-sm font-medium" aria-live="polite">
               {formatMonth(month)}
             </span>
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               onClick={() => setMonth(shiftMonth(month, 1))}
               disabled={isCurrent}
               aria-label="Next month"
@@ -76,18 +79,18 @@ export function TransactionsPage() {
             </Button>
           </div>
           {overview.data && (
-            <dl className="flex gap-5 text-sm">
-              <div>
+            <dl className="grid w-full grid-cols-3 divide-x text-sm sm:w-auto">
+              <div className="pr-4 sm:pr-6">
                 <dt className="text-xs text-muted-foreground">Income</dt>
-                <dd><Money value={overview.data.income} className="font-medium" /></dd>
+                <dd><Money value={overview.data.income} className="font-semibold text-success" /></dd>
               </div>
-              <div>
+              <div className="px-4 sm:px-6">
                 <dt className="text-xs text-muted-foreground">Expenses</dt>
-                <dd><Money value={overview.data.expense} className="font-medium" /></dd>
+                <dd><Money value={overview.data.expense} className="font-semibold" /></dd>
               </div>
-              <div>
+              <div className="pl-4 sm:pl-6">
                 <dt className="text-xs text-muted-foreground">Net</dt>
-                <dd><Money value={overview.data.net} className="font-medium" /></dd>
+                <dd><Money value={overview.data.net} className="font-semibold" /></dd>
               </div>
             </dl>
           )}
@@ -95,9 +98,10 @@ export function TransactionsPage() {
       </Card>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-3 items-center gap-2 sm:flex sm:flex-wrap">
+        <ListFilter className="hidden size-4 text-muted-foreground sm:block" aria-hidden />
         <Select value={type} onValueChange={(v) => { setType(v); setCategoryId(ALL) }}>
-          <SelectTrigger className="w-full" aria-label="Filter by type">
+          <SelectTrigger className="w-full sm:w-44" aria-label="Filter by type">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -109,7 +113,7 @@ export function TransactionsPage() {
           </SelectContent>
         </Select>
         <Select value={walletId} onValueChange={setWalletId}>
-          <SelectTrigger className="w-full" aria-label="Filter by wallet">
+          <SelectTrigger className="w-full sm:w-44" aria-label="Filter by wallet">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -120,7 +124,7 @@ export function TransactionsPage() {
           </SelectContent>
         </Select>
         <Select value={categoryId} onValueChange={setCategoryId}>
-          <SelectTrigger className="w-full" aria-label="Filter by category">
+          <SelectTrigger className="w-full sm:w-52" aria-label="Filter by category">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -132,28 +136,54 @@ export function TransactionsPage() {
               ))}
           </SelectContent>
         </Select>
+        {filtered && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="col-span-3 justify-self-start"
+            onClick={() => {
+              setType(ALL)
+              setWalletId(ALL)
+              setCategoryId(ALL)
+            }}
+          >
+            <X aria-hidden /> Clear
+          </Button>
+        )}
+        {items.length > 0 && (
+          <p className="num ml-auto hidden text-sm text-muted-foreground sm:block">
+            {items.length} of {total}
+          </p>
+        )}
       </div>
 
       {/* List */}
       {list.isPending && (
-        <div className="space-y-2">
-          <Skeleton className="h-14 w-full" />
-          <Skeleton className="h-14 w-full" />
-          <Skeleton className="h-14 w-full" />
+        <div className="space-y-2" role="status" aria-label="Loading transactions">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-14 w-full rounded-xl" />
+          <Skeleton className="h-14 w-full rounded-xl" />
+          <Skeleton className="h-14 w-full rounded-xl" />
         </div>
       )}
       {list.isError && <p className="text-sm text-destructive">{list.error.message}</p>}
       {list.isSuccess && items.length === 0 && (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
-            <p className="font-medium">{filtered ? 'Nothing matches these filters' : `No transactions in ${formatMonth(month)}`}</p>
-            {!filtered && isCurrent && <AddTransactionButton />}
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={filtered ? <ListFilter /> : <ReceiptText />}
+          title={filtered ? 'Nothing matches these filters' : `No transactions in ${formatMonth(month)}`}
+          description={
+            filtered
+              ? 'Try a different type, wallet or category — or clear the filters.'
+              : isCurrent
+                ? 'Add one by hand, or type it on the dashboard like “ajke 50 taka cha”.'
+                : 'Nothing was recorded this month.'
+          }
+          action={!filtered && isCurrent ? <AddTransactionButton /> : undefined}
+        />
       )}
       {items.length > 0 && (
         <>
-          <p className="text-sm text-muted-foreground">
+          <p className="num text-sm text-muted-foreground sm:hidden">
             Showing {items.length} of {total}
           </p>
           <TransactionList items={items} />

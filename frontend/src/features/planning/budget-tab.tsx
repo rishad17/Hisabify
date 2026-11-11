@@ -2,6 +2,7 @@ import { AlertCircle, ChevronLeft, ChevronRight, Info, Loader2, Pencil, Plus, Sp
 import { useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
 
+import { useConfirm } from '@/components/confirm-dialog'
 import { CategoryIcon } from '@/components/category-icon'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -79,12 +80,12 @@ export function BudgetTab() {
   const [editor, setEditor] = useState<EditorState | null>(null)
 
   const header = (
-    <div className="flex items-center gap-1">
-      <Button variant="ghost" size="icon" onClick={() => { setMonth(shiftMonth(month, -1)); setEditor(null) }} aria-label="Previous month">
+    <div className="inline-flex items-center gap-0.5 rounded-lg border bg-card p-0.5 shadow-xs">
+      <Button variant="ghost" size="icon-sm" onClick={() => { setMonth(shiftMonth(month, -1)); setEditor(null) }} aria-label="Previous month">
         <ChevronLeft aria-hidden />
       </Button>
-      <span className="min-w-36 text-center font-medium" aria-live="polite">{formatMonth(month)}</span>
-      <Button variant="ghost" size="icon" onClick={() => { setMonth(shiftMonth(month, 1)); setEditor(null) }} aria-label="Next month">
+      <span className="min-w-32 text-center text-sm font-medium" aria-live="polite">{formatMonth(month)}</span>
+      <Button variant="ghost" size="icon-sm" onClick={() => { setMonth(shiftMonth(month, 1)); setEditor(null) }} aria-label="Next month">
         <ChevronRight aria-hidden />
       </Button>
     </div>
@@ -314,7 +315,7 @@ function BudgetEditor({ month, initial, onClose }: { month: string; initial: Edi
             <span className="text-muted-foreground"> + savings </span>
             <span className="font-medium tabular-nums">{formatTaka(savings ?? '0')}</span>
             {left !== null && (
-              <span className={cn('ml-2 font-medium', isNegative(left) ? 'text-destructive' : left === '0.00' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400')}>
+              <span className={cn('ml-2 font-medium', isNegative(left) ? 'text-destructive' : left === '0.00' ? 'text-success' : 'text-warning')}>
                 {isNegative(left) ? `Over by ${formatTaka(left.slice(1))}` : left === '0.00' ? '✓ Every taka assigned' : `${formatTaka(left)} unassigned`}
               </span>
             )}
@@ -336,6 +337,7 @@ function BudgetEditor({ month, initial, onClose }: { month: string; initial: Edi
 
 function BudgetProgress({ month, budget, onEdit }: { month: string; budget: BudgetStatus; onEdit: () => void }) {
   const del = useDeleteBudget(month)
+  const confirm = useConfirm()
   const totalPercent = budget.total_budget === '0.00' ? 0 : Math.round((Number(budget.total_spent) / Number(budget.total_budget)) * 100)
 
   return (
@@ -352,9 +354,15 @@ function BudgetProgress({ month, budget, onEdit }: { month: string; budget: Budg
           </div>
           <div className="flex gap-1">
             <Button variant="outline" size="sm" onClick={onEdit}><Pencil aria-hidden /> Edit</Button>
-            <Button variant="ghost" size="icon" className="size-8" aria-label="Delete budget" disabled={del.isPending}
+            <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-destructive" aria-label="Delete budget" disabled={del.isPending}
               onClick={async () => {
-                if (!window.confirm(`Delete the budget for ${formatMonth(month)}? Transactions are not affected.`)) return
+                const ok = await confirm({
+                  title: `Delete the budget for ${formatMonth(month)}?`,
+                  description: 'Your transactions are not affected.',
+                  confirmLabel: 'Delete budget',
+                  destructive: true,
+                })
+                if (!ok) return
                 try { await del.mutateAsync(); toast.success('Budget deleted') } catch (e) { toast.error(errMsg(e)) }
               }}>
               <Trash2 aria-hidden />
@@ -363,30 +371,32 @@ function BudgetProgress({ month, budget, onEdit }: { month: string; budget: Budg
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <ul className="space-y-3">
+        <ul className="grid gap-x-10 gap-y-5 md:grid-cols-2">
           {budget.items.map((item) => {
             const over = isNegative(item.remaining)
-            const tone = over ? 'bg-destructive' : item.percent_used >= 80 ? 'bg-amber-500' : 'bg-primary'
+            const tone = over ? 'bg-destructive' : item.percent_used >= 80 ? 'bg-warning' : 'bg-primary'
             return (
-              <li key={item.category.id} className="space-y-1">
-                <div className="flex items-center gap-2 text-sm">
-                  <CategoryIcon name={item.category.icon} className="size-4 text-muted-foreground" />
+              <li key={item.category.id} className="space-y-2">
+                <div className="flex items-center gap-2.5 text-sm">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-foreground/70 dark:bg-white/[0.06]">
+                    <CategoryIcon name={item.category.icon} className="size-3.5" />
+                  </span>
                   <span className="flex-1 truncate font-medium">{item.category.name}</span>
-                  <span className="tabular-nums text-muted-foreground">
+                  <span className="num text-muted-foreground">
                     {formatTaka(item.spent, { trimZeroDecimals: true })} / {formatTaka(item.amount, { trimZeroDecimals: true })}
                   </span>
                 </div>
                 <div
-                  className="h-2 overflow-hidden rounded-full bg-muted"
+                  className="h-1.5 overflow-hidden rounded-full bg-muted"
                   role="progressbar"
                   aria-label={`${item.category.name} budget used`}
                   aria-valuenow={Math.min(item.percent_used, 100)}
                   aria-valuemin={0}
                   aria-valuemax={100}
                 >
-                  <div className={cn('h-full rounded-full', tone)} style={{ width: `${Math.min(item.percent_used, 100)}%` }} />
+                  <div className={cn('h-full rounded-full transition-[width] duration-500 ease-out', tone)} style={{ width: `${Math.min(item.percent_used, 100)}%` }} />
                 </div>
-                <p className={cn('text-xs', over ? 'text-destructive' : item.percent_used >= 80 ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground')}>
+                <p className={cn('text-xs', over ? 'text-destructive' : item.percent_used >= 80 ? 'text-warning' : 'text-muted-foreground')}>
                   {over
                     ? `Over budget by ${formatTaka(item.remaining.slice(1), { trimZeroDecimals: true })}`
                     : `${item.percent_used}% used · ${formatTaka(item.remaining, { trimZeroDecimals: true })} left`}

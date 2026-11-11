@@ -263,7 +263,7 @@ export function DraftPreview({ draft, onDone }: { draft: Draft; onDone: () => vo
                     </li>
                   ))}
                   {warnings.map((issue) => (
-                    <li key={issue.code} className="flex items-start gap-1.5 text-amber-700 dark:text-amber-400">
+                    <li key={issue.code} className="flex items-start gap-1.5 text-warning">
                       <AlertTriangle className="mt-px size-3.5 shrink-0" aria-hidden />
                       {issue.message}
                     </li>
@@ -309,7 +309,7 @@ export function DraftPreview({ draft, onDone }: { draft: Draft; onDone: () => vo
           {totals.income !== '0.00' && (
             <div>
               <dt className="text-xs text-muted-foreground">Income</dt>
-              <dd className="font-semibold text-emerald-700 tabular-nums dark:text-emerald-400">
+              <dd className="font-semibold num text-success">
                 {formatTaka(totals.income)}
               </dd>
             </div>

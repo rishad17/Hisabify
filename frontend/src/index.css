@@ -51,6 +51,12 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+    --shadow-card: var(--elev-1);
+    --shadow-raised: var(--elev-2);
+    --shadow-pop: var(--elev-3);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-surface-subtle: var(--surface-subtle);
 }
 
 /*
@@ -61,7 +67,7 @@
  * looks like the brand or a status.
  */
 :root {
-    --background: #f6f8f6;
+    --background: #f5f7f6;
     --foreground: #0f1a15;
     --card: #ffffff;
     --card-foreground: #0f1a15;
@@ -71,20 +77,20 @@
     --primary-foreground: #ffffff;
     --secondary: #e8f3ed;
     --secondary-foreground: #0f3d2c;
-    --muted: #eef2ef;
-    --muted-foreground: #56665e;
+    --muted: #eff3f1;
+    --muted-foreground: #55645d;
     --accent: #e8f3ed;
     --accent-foreground: #0f3d2c;
     --destructive: #c62f2f;
-    --border: #e1e8e3;
-    --input: #d6dfd9;
+    --border: #e2e8e4;
+    --input: #d5ddd8;
     --ring: #0f7a55;
     --chart-1: #2a78d6;
     --chart-2: #eb6834;
     --chart-3: #1baf7a;
     --chart-4: #eda100;
     --chart-5: #6250d6;
-    --radius: 0.875rem;
+    --radius: 0.625rem;
     --sidebar: #ffffff;
     --sidebar-foreground: #0f1a15;
     --sidebar-primary: #0f7a55;
@@ -98,12 +104,20 @@
     --hero-from: #0d6e4d;
     --hero-to: #08513a;
     --hero-muted: #dcefe6;
+    /* Status + surfaces */
+    --success: #0f7a55;
+    --warning: #a35f00;
+    --surface-subtle: #fafbfa;
+    /* Elevation: hairline + soft ambient, tinted toward the brand green */
+    --elev-1: 0 1px 2px rgb(16 40 30 / 0.04), 0 1px 3px rgb(16 40 30 / 0.03);
+    --elev-2: 0 1px 2px rgb(16 40 30 / 0.05), 0 4px 12px -2px rgb(16 40 30 / 0.07);
+    --elev-3: 0 2px 6px rgb(16 40 30 / 0.06), 0 16px 40px -12px rgb(16 40 30 / 0.22);
 }
 
 .dark {
-    --background: #0b1210;
+    --background: #0a100e;
     --foreground: #e8efeb;
-    --card: #111a17;
+    --card: #101815;
     --card-foreground: #e8efeb;
     --popover: #131d19;
     --popover-foreground: #e8efeb;
@@ -136,6 +150,12 @@
     --hero-from: #0e4d37;
     --hero-to: #0a3527;
     --hero-muted: #bfe0d2;
+    --success: #34c48c;
+    --warning: #f0b93a;
+    --surface-subtle: #0d1412;
+    --elev-1: 0 1px 2px rgb(0 0 0 / 0.3);
+    --elev-2: 0 1px 2px rgb(0 0 0 / 0.35), 0 6px 16px -4px rgb(0 0 0 / 0.45);
+    --elev-3: 0 2px 8px rgb(0 0 0 / 0.4), 0 20px 48px -12px rgb(0 0 0 / 0.6);
 }
 
 @layer base {
@@ -143,11 +163,40 @@
     @apply border-border outline-ring/50;
     }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    text-rendering: optimizeLegibility;
     }
   html {
     @apply font-sans;
+    -webkit-tap-highlight-color: transparent;
     }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 22%, transparent);
+    }
+  h1, h2, h3 {
+    text-wrap: balance;
+    }
+  /* Respect "reduce motion": keep state changes, drop the movement. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Money and other figures line up in columns. */
+@utility num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* A thin, quiet scrollbar for horizontally scrolling chip rows. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 /*
  * Chart tokens (data-viz palette, validated for colour-blind separation in both modes:

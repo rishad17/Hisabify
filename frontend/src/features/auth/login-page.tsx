@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { PasswordInput } from '@/components/password-input'
 import { AuthLayout } from '@/features/auth/auth-layout'
 import { friendlyAuthError } from '@/features/auth/errors'
 import { supabase } from '@/lib/supabase'
@@ -33,13 +34,13 @@ export function LoginPage() {
       footer={
         <>
           New here?{' '}
-          <Link to="/signup" className="font-medium text-foreground underline underline-offset-4">
+          <Link to="/signup" className="font-medium text-primary underline-offset-4 hover:underline">
             Create an account
           </Link>
         </>
       }
     >
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
+      <form onSubmit={onSubmit} className="space-y-5" noValidate>
         {error && (
           <Alert variant="destructive">
             <AlertCircle aria-hidden />
@@ -51,6 +52,8 @@ export function LoginPage() {
           <Input
             id="email"
             type="email"
+            inputMode="email"
+            placeholder="you@example.com"
             autoComplete="email"
             required
             value={email}
@@ -59,16 +62,15 @@ export function LoginPage() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="current-password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button type="submit" className="w-full" disabled={submitting || !email || !password}>
+        <Button type="submit" size="lg" className="w-full" disabled={submitting || !email || !password}>
           {submitting && <Loader2 className="animate-spin" aria-hidden />}
           Sign in
         </Button>

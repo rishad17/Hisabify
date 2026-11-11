@@ -107,16 +107,37 @@ export function QuickEntry() {
   const recording = recorder.state === 'recording' || recorder.state === 'requesting'
   const busy = ai.isPending || transcribe.isPending
 
+  useEffect(() => {
+    function onKey(e: globalThis.KeyboardEvent) {
+      if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return
+      const t = e.target as HTMLElement | null
+      if (t && (t.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName))) return
+      if (!inputRef.current) return
+      e.preventDefault()
+      inputRef.current.focus()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Sparkles className="size-4 text-primary" aria-hidden />
+        <CardTitle className="flex items-center gap-2">
+          <span className="flex size-7 items-center justify-center rounded-lg bg-accent text-primary">
+            <Sparkles className="size-4" aria-hidden />
+          </span>
           Ask or record
+          <kbd
+            className="ml-auto hidden h-5 items-center rounded border bg-muted px-1.5 font-sans text-[11px] font-medium text-muted-foreground lg:inline-flex"
+            title="Press / to start typing"
+          >
+            /
+          </kbd>
         </CardTitle>
         <CardDescription>
-          Type or say what you spent — or ask about your money — in English, বাংলা or Banglish. Nothing is
-          saved until you confirm it.
+          Type or say what you spent — or ask about your money — in English, বাংলা or Banglish. Nothing is saved
+          until you confirm it.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -124,11 +145,11 @@ export function QuickEntry() {
           <div className="space-y-3" aria-live="polite">
             {thread.map((m, i) =>
               m.role === 'user' ? (
-                <p key={i} className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-sm text-primary-foreground">
+                <p key={i} className="ml-auto w-fit max-w-[85%] animate-in rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-sm text-primary-foreground duration-200 fade-in-0 slide-in-from-bottom-1">
                   {m.text}
                 </p>
               ) : (
-                <div key={i} className="space-y-2">
+                <div key={i} className="animate-in space-y-2 duration-300 fade-in-0 slide-in-from-bottom-1">
                   <div className="flex gap-2">
                     <MessageSquareText className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
                     <MiniMarkdown text={m.text} />
@@ -169,16 +190,15 @@ export function QuickEntry() {
                 maxLength={500}
                 rows={2}
                 aria-label="Describe your transactions"
-                className="min-h-16 resize-none pr-24"
+                className="min-h-[72px] resize-none pr-24"
                 disabled={busy}
               />
               <div className="absolute right-2 bottom-2 flex gap-1.5">
                 {voiceSupported && (
                   <Button
                     type="button"
-                    size="icon"
+                    size="icon-sm"
                     variant="outline"
-                    className="size-8"
                     onClick={() => void startRecording()}
                     disabled={busy}
                     aria-label="Record voice"
@@ -189,8 +209,7 @@ export function QuickEntry() {
                 )}
                 <Button
                   type="submit"
-                  size="icon"
-                  className="size-8"
+                  size="icon-sm"
                   disabled={!text.trim() || busy}
                   aria-label="Send"
                 >
@@ -205,7 +224,12 @@ export function QuickEntry() {
               </p>
             )}
             {ai.isPending && (
-              <p className="text-sm text-muted-foreground" role="status">
+              <p className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
+                <span className="flex gap-1" aria-hidden>
+                  <span className="size-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.3s]" />
+                  <span className="size-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.15s]" />
+                  <span className="size-1.5 animate-bounce rounded-full bg-primary" />
+                </span>
                 Thinking…
               </p>
             )}
@@ -220,7 +244,10 @@ export function QuickEntry() {
               </p>
             )}
             {!busy && !reply && !text && thread.length === 0 && (
-              <div className="flex flex-wrap gap-1.5" aria-label="Examples">
+              <div
+                className="-mx-5 flex gap-1.5 overflow-x-auto px-5 pb-0.5 scrollbar-none sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
+                aria-label="Examples"
+              >
                 {EXAMPLES.map((example) => (
                   <button
                     key={example}
@@ -230,7 +257,7 @@ export function QuickEntry() {
                       setSource('text')
                       inputRef.current?.focus()
                     }}
-                    className="rounded-full border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    className="shrink-0 rounded-full border bg-card px-3 py-1 text-xs text-muted-foreground transition-colors duration-150 hover:border-primary/40 hover:bg-accent hover:text-accent-foreground"
                   >
                     {example}
                   </button>

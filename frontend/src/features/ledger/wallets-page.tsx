@@ -2,6 +2,7 @@ import { AlertCircle, Archive, Ellipsis, Loader2, Pencil, Plus, Scale, Star } fr
 import { useEffect, useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
 
+import { PageHeader } from '@/components/brand'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   AlertDialog,
@@ -51,9 +52,10 @@ import {
   type WalletType,
 } from '@/features/ledger/api'
 import { Money } from '@/features/ledger/amount'
-import { WALLET_TYPES, WalletIcon, walletTypeLabel } from '@/features/ledger/wallet-icon'
+import { WALLET_TYPES, WalletIcon, walletTone, walletTypeLabel } from '@/features/ledger/wallet-icon'
 import { ApiError } from '@/lib/api'
-import { formatTaka, parseAmountInput } from '@/lib/money'
+import { formatTaka, parseAmountInput, sumAmounts } from '@/lib/money'
+import { cn } from '@/lib/utils'
 
 const errorMessage = (err: unknown) =>
   err instanceof ApiError ? err.message : 'Something went wrong. Please try again.'
@@ -89,18 +91,25 @@ export function WalletsPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">Wallets</h1>
-          <p className="text-sm text-muted-foreground">
-            Balances are calculated from your transactions. Use “Correct balance” if they drift from reality.
-          </p>
+    <div className="space-y-6">
+      <PageHeader
+        title="Wallets"
+        description="Balances are calculated from your transactions. Use “Correct balance” if they drift from reality."
+        actions={
+          <Button onClick={() => setCreating(true)}>
+            <Plus aria-hidden /> Add wallet
+          </Button>
+        }
+      />
+
+      {wallets.isSuccess && wallets.data.length > 0 && (
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <span className="text-sm text-muted-foreground">
+            Total across {wallets.data.length} wallet{wallets.data.length === 1 ? '' : 's'}
+          </span>
+          <Money value={sumAmounts(wallets.data.map((w) => w.balance))} className="text-xl font-semibold tracking-tight" />
         </div>
-        <Button onClick={() => setCreating(true)}>
-          <Plus aria-hidden /> Add wallet
-        </Button>
-      </div>
+      )}
 
       {wallets.isPending && (
         <div className="grid gap-3 sm:grid-cols-2">
@@ -114,11 +123,11 @@ export function WalletsPage() {
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {wallets.data.map((w) => (
             <li key={w.id}>
-              <Card className="py-4">
-                <CardContent className="space-y-3 px-4">
+              <Card className="h-full py-4 transition-shadow duration-200 hover:shadow-raised">
+                <CardContent className="space-y-4 px-4">
                   <div className="flex items-start gap-3">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted">
-                      <WalletIcon type={w.type} className="size-5 text-muted-foreground" />
+                    <div className={cn('flex size-10 shrink-0 items-center justify-center rounded-xl', walletTone(w.type))}>
+                      <WalletIcon type={w.type} className="size-5" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="flex items-center gap-2 truncate font-medium">
@@ -129,7 +138,7 @@ export function WalletsPage() {
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8" aria-label={`Actions for ${w.name}`}>
+                        <Button variant="ghost" size="icon-sm" className="text-muted-foreground" aria-label={`Actions for ${w.name}`}>
                           <Ellipsis aria-hidden />
                         </Button>
                       </DropdownMenuTrigger>
@@ -156,7 +165,7 @@ export function WalletsPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                  <Money value={w.balance} className="block text-2xl font-semibold" />
+                  <Money value={w.balance} className="block text-[26px] leading-none font-semibold tracking-tight" />
                 </CardContent>
               </Card>
             </li>

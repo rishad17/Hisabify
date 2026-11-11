@@ -2,6 +2,7 @@ import { CalendarClock, Check, Ellipsis, HandCoins, Loader2, Pencil, Plus, Recei
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { toast } from 'sonner'
 
+import { useConfirm } from '@/components/confirm-dialog'
 import { CategoryIcon } from '@/components/category-icon'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -66,6 +67,7 @@ export function BillsTab() {
 function BillsCard() {
   const bills = useBills()
   const remove = useDeleteBill()
+  const confirm = useConfirm()
   const [editing, setEditing] = useState<Bill | 'new' | null>(null)
   const [paying, setPaying] = useState<Bill | null>(null)
 
@@ -125,7 +127,13 @@ function BillsCard() {
                     <DropdownMenuItem
                       variant="destructive"
                       onSelect={async () => {
-                        if (!window.confirm(`Delete "${b.name}"? Past payments stay in your history.`)) return
+                        const ok = await confirm({
+                          title: `Delete "${b.name}"?`,
+                          description: 'Past payments stay in your history.',
+                          confirmLabel: 'Delete bill',
+                          destructive: true,
+                        })
+                        if (!ok) return
                         try { await remove.mutateAsync(b.id); toast.success('Bill deleted') } catch (e) { toast.error(errMsg(e)) }
                       }}
                     >
