@@ -46,7 +46,7 @@ def _fix_request(bad: list[str]) -> str:
 
 def system_prompt(today: date, language: str) -> str:
     preferred = "Bangla (বাংলা script)" if language == "bn" else "English"
-    return f"""You are TakaWise, a friendly personal-finance assistant for a user in Bangladesh.
+    return f"""You are Hisabify, a friendly personal-finance assistant for a user in Bangladesh.
 Today is {today.isoformat()} ({today.strftime("%A")}), timezone Asia/Dhaka. Currency: Taka (৳).
 
 HOW TO ANSWER

@@ -77,7 +77,7 @@ def export_csv(
         account.export_transactions_csv(db, user.id),
         media_type="text/csv; charset=utf-8",
         headers={
-            "Content-Disposition": 'attachment; filename="takawise-transactions.csv"',
+            "Content-Disposition": 'attachment; filename="hisabify-transactions.csv"',
             "Cache-Control": "no-store",
         },
     )

@@ -57,7 +57,7 @@ export function TransactionList({ items, groupByDay = true }: { items: Transacti
   const groups: { day: string; items: Transaction[] }[] = []
   for (const tx of items) {
     const last = groups.at(-1)
-    if (groupByDay && last?.day === tx.occurred_on) last.items.push(tx)
+    if (last && (!groupByDay || last.day === tx.occurred_on)) last.items.push(tx)
     else groups.push({ day: tx.occurred_on, items: [tx] })
   }
 
@@ -83,10 +83,10 @@ export function TransactionList({ items, groupByDay = true }: { items: Transacti
                 {formatDayLabel(group.day)}
               </h3>
             )}
-            <ul className="divide-y rounded-lg border bg-card">
+            <ul className="divide-y overflow-hidden rounded-xl border bg-card shadow-xs">
               {group.items.map((tx) => (
-                <li key={tx.id} className="flex items-center gap-3 px-3 py-2.5">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                <li key={tx.id} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50">
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground">
                     <RowIcon tx={tx} />
                   </div>
                   <div className="min-w-0 flex-1">

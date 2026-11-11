@@ -21,7 +21,7 @@ export function InsightsPage() {
       {/* One filter row above all charts — never a filter inside a chart card. */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Insights</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">Insights</h1>
           <p className="text-sm text-muted-foreground">Where your money goes, and how it's changing.</p>
         </div>
         <div className="flex items-center gap-1 rounded-lg border p-0.5">

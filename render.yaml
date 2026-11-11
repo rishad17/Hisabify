@@ -3,7 +3,7 @@
 # are entered in the dashboard, never committed.
 services:
   - type: web
-    name: takawise-api
+    name: hisabify-api
     runtime: python
     plan: free
     region: singapore

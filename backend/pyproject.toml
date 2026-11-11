@@ -1,7 +1,7 @@
 [project]
 name = "takawise-backend"
 version = "0.1.0"
-description = "TakaWise AI — FastAPI backend"
+description = "Hisabify — FastAPI backend"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",

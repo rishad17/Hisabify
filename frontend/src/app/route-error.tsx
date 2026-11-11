@@ -21,7 +21,7 @@ export function RouteError() {
         </h1>
         <p className="max-w-sm text-sm text-muted-foreground">
           {chunkFailed
-            ? 'Reload to get the latest version of TakaWise.'
+            ? 'Reload to get the latest version of Hisabify.'
             : 'Your data is safe — nothing was saved halfway. Try reloading the page.'}
         </p>
       </div>

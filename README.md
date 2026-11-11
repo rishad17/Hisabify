@@ -1,6 +1,6 @@
-# TakaWise AI
+# Hisabify
 
-**An AI expense tracker and budget planner for Bangladesh — in English, বাংলা and Banglish, by text or voice.**
+**An AI expense tracker and budget planner for Bangladesh — in English, বাংলা and Banglish, by text or voice.** *Hisab* (হিসাব) means "accounts" in Bangla.
 
 Type or say *"Ajke 100 taka rickshaw vara, 200 taka lunch, ar 50 taka cha kheyechi"* and you get three
 transactions to review before anything is saved. Ask *"Ei mash e koto khoroch holo?"* or *"Can I buy a
@@ -12,7 +12,7 @@ transactions to review before anything is saved. Ask *"Ei mash e koto khoroch ho
 
 ## Why it's different
 
-Expense trackers and chatbots exist. TakaWise combines a few ideas that are rarely together:
+Expense trackers and chatbots exist. Hisabify combines a few ideas that are rarely together:
 
 | | |
 |---|---|

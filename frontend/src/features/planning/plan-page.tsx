@@ -13,7 +13,7 @@ export function PlanPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Plan</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">Plan</h1>
         <p className="text-sm text-muted-foreground">
           Your budget, monthly bills and expected income — the app reserves them before telling you what's safe to spend.
         </p>
