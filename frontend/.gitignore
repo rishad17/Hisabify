@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Vercel CLI link + local env files (keep the shared example)
+.vercel
+.env*
+!.env.example
